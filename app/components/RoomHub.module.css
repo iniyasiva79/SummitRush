@@ -1,0 +1,55 @@
+.main {
+  width: min(960px, 100%);
+  margin: 0 auto 40px;
+  color: #fff;
+  text-shadow: 0 1px 8px rgb(0 0 0 / 55%);
+}
+
+.head h1,
+.head p {
+  margin: 0 0 8px;
+}
+
+.kicker {
+  color: #dcecf5;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.head h1 {
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+}
+
+.split {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.notice {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f7d7d0;
+  color: var(--hazard-deep);
+  font-weight: 800;
+  text-shadow: none;
+}
+
+.main :global(select) {
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 2px solid var(--rock-ink);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--rock-ink);
+  font: inherit;
+}
+
+@media (max-width: 720px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+}

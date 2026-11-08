@@ -27,6 +27,13 @@
   box-shadow: 0 6px 14px rgb(16 32 58 / 24%);
 }
 
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  transform: none;
+  box-shadow: var(--shadow);
+}
+
 .primary {
   background: #2478a3;
   color: #ffffff;

@@ -1,0 +1,173 @@
+.main {
+  width: min(1100px, 100%);
+  margin: 0 auto 40px;
+  color: #fff;
+  text-shadow: 0 1px 8px rgb(0 0 0 / 55%);
+}
+
+.head h1,
+.head p,
+.panel h2,
+.panel p {
+  margin: 0 0 8px;
+}
+
+.kicker {
+  color: #dcecf5;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.head h1 {
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.toolbar,
+.actions,
+.hostRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin: 12px 0;
+}
+
+.invite {
+  margin: 0;
+  font-weight: 800;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.seat {
+  padding: 12px;
+  border-radius: 18px;
+  background: rgb(247 251 255 / 94%);
+  color: var(--rock-ink);
+  text-shadow: none;
+}
+
+.seat h2,
+.seat p {
+  margin: 0 0 4px;
+}
+
+.ready {
+  color: #195b80;
+  font-weight: 800;
+}
+
+.wait {
+  font-weight: 800;
+}
+
+.notice {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f7d7d0;
+  color: var(--hazard-deep);
+  font-weight: 800;
+  text-shadow: none;
+}
+
+.hostRow label {
+  font-weight: 800;
+}
+
+.hostRow label,
+.wager,
+.panel {
+  display: grid;
+  gap: 8px;
+}
+
+.hostRow select,
+.wager input,
+.panel :global(select) {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 2px solid var(--rock-ink);
+  border-radius: 12px;
+  font: inherit;
+}
+
+.panel {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 20px;
+  background: rgb(247 251 255 / 94%);
+  color: var(--rock-ink);
+  text-shadow: none;
+}
+
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #fff;
+  font-weight: 800;
+}
+
+.ranks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.ranks li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.racer {
+  z-index: 4;
+}
+
+.tag,
+.tagAlt {
+  position: absolute;
+  left: 50%;
+  z-index: 4;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgb(16 36 58 / 82%);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+  text-shadow: none;
+}
+
+.tag {
+  top: -18px;
+}
+
+.tagAlt {
+  top: -36px;
+}
+
+.wager {
+  padding: 10px;
+  border: 2px solid var(--ice);
+  border-radius: 14px;
+}
+
+.wager legend {
+  font-weight: 800;
+}
+
+@media (max-width: 720px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
