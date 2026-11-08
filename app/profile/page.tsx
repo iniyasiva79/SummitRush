@@ -10,7 +10,7 @@ export default function ProfilePage() {
   return (
     <PlaceholderPage
       title="Profile"
-      note="Avatar selection is not built yet. Your saved display name is shown below."
+      note="Avatar selection is not built yet. Your username is shown below."
     />
   );
 }

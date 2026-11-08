@@ -28,17 +28,21 @@
 }
 
 .primary {
-  background: linear-gradient(180deg, #2ea87a, var(--forest-deep));
-  color: var(--snow);
+  background: #2478a3;
+  color: #ffffff;
 }
 
 .primary:hover {
-  background: var(--forest-deep);
+  background: #195b80;
 }
 
 .secondary {
-  background: var(--snow);
-  color: var(--rock-ink);
+  background: #dcecf5;
+  color: #19334f;
+}
+
+.secondary:hover {
+  background: #c5dfec;
 }
 
 .gold {

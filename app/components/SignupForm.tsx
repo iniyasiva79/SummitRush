@@ -13,7 +13,6 @@ const empty: SignupInput = {
   dateOfBirth: "",
   username: "",
   password: "",
-  displayName: "",
 };
 
 export function SignupForm() {
@@ -31,7 +30,6 @@ export function SignupForm() {
       dateOfBirth: String(data.get("dateOfBirth") ?? ""),
       username: String(data.get("username") ?? ""),
       password: String(data.get("password") ?? ""),
-      displayName: String(data.get("displayName") ?? ""),
     };
     setValues(next);
     setPending(true);
@@ -43,7 +41,7 @@ export function SignupForm() {
     }
     setValues(empty);
     setErrors({});
-    setCreatedName(result.account.displayName);
+    setCreatedName(result.account.username);
   }
 
   if (createdName) {
@@ -109,14 +107,6 @@ export function SignupForm() {
           error={errors.password}
           hint="At least 8 characters, including one number."
           onChange={(password) => setValues({ ...values, password })}
-        />
-        <Field
-          label="Display Name"
-          name="displayName"
-          autoComplete="nickname"
-          value={values.displayName}
-          error={errors.displayName}
-          onChange={(displayName) => setValues({ ...values, displayName })}
         />
         <div className={styles.actions}>
           <GameButton type="submit" disabled={pending}>

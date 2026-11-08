@@ -43,7 +43,6 @@ export type SignupInput = {
   dateOfBirth: string;
   username: string;
   password: string;
-  displayName: string;
 };
 
 export type SignupErrors = Partial<Record<keyof SignupInput, string>>;
@@ -153,7 +152,7 @@ export async function signup(
     firstName: input.firstName.trim(),
     lastName: input.lastName.trim(),
     dateOfBirth: input.dateOfBirth,
-    displayName: input.displayName.trim().slice(0, 24),
+    displayName: input.username.trim(),
     coins: STARTING_COINS,
     progress: emptyProgress(),
     passwordSalt: bytesToBase64(salt),
@@ -216,7 +215,6 @@ function validateSignup(input: SignupInput, accounts: StoredAccount[]): SignupEr
   const firstName = input.firstName.trim();
   const lastName = input.lastName.trim();
   const username = input.username.trim();
-  const displayName = input.displayName.trim();
 
   if (!NAME_PATTERN.test(firstName)) {
     errors.firstName = "Enter a first name using letters.";
@@ -236,9 +234,6 @@ function validateSignup(input: SignupInput, accounts: StoredAccount[]): SignupEr
   }
   if (input.password.length < 8 || input.password.length > 72 || !/\d/.test(input.password)) {
     errors.password = "Use at least 8 characters, including one number.";
-  }
-  if (!displayName || displayName.length > 24) {
-    errors.displayName = "Enter a display name of 1 to 24 characters.";
   }
   return errors;
 }

@@ -51,13 +51,6 @@
   text-transform: none;
 }
 
-.signedIn {
-  margin: 0;
-  color: #f7fbff;
-  font-weight: 800;
-  text-align: center;
-  text-shadow: 0 2px 10px rgb(0 0 0 / 70%);
-}
 
 .menuButton {
   width: 100%;

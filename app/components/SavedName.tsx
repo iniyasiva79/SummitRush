@@ -1,13 +1,17 @@
 "use client";
 
-import { useDisplayName } from "../lib/displayName";
+import { useActiveAccount } from "../lib/accounts";
 
 export function SavedName() {
-  const name = useDisplayName();
+  const account = useActiveAccount();
+
+  if (!account) {
+    return <p>Sign in to see the username saved with an account.</p>;
+  }
 
   return (
     <p>
-      Display name: <strong>{name || "Not set yet"}</strong>
+      Username: <strong>{account.username}</strong>
     </p>
   );
 }

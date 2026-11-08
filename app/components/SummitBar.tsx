@@ -1,21 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type FormEvent,
-  type ReactNode,
-} from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { logout, useActiveAccount } from "../lib/accounts";
 import { useCoins } from "../lib/coins";
-import {
-  DISPLAY_NAME_LIMIT,
-  useDisplayName,
-  writeDisplayName,
-} from "../lib/displayName";
 import {
   updateSettings,
   useSettings,
@@ -33,12 +21,8 @@ type SummitBarProps = {
 };
 
 export function SummitBar({ themeLinks = [] }: SummitBarProps) {
-  const savedName = useDisplayName();
   const account = useActiveAccount();
   const coins = useCoins();
-  const [draft, setDraft] = useState<string | null>(null);
-  const [notice, setNotice] = useState("");
-  const nameValue = draft ?? savedName;
   const [infoOpen, setInfoOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const menuRef = useRef<HTMLButtonElement>(null);
@@ -48,7 +32,6 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
   const infoPanelRef = useRef<HTMLDivElement>(null);
   const settingsPanelRef = useRef<HTMLDivElement>(null);
   const settings = useSettings();
-  const nameFieldId = useId();
   const infoTitleId = useId();
   const settingsTitleId = useId();
   const textSizes: TextSize[] = ["small", "medium", "large"];
@@ -93,18 +76,7 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
     };
   }, [infoOpen, settingsOpen]);
 
-  function saveName(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const next = nameValue.trim().slice(0, DISPLAY_NAME_LIMIT);
-    try {
-      writeDisplayName(next);
-    } catch {
-      setNotice("The name could not be saved in this browser.");
-      return;
-    }
-    setDraft(null);
-    setNotice(next ? `Saved display name ${next}.` : "Display name cleared.");
-  }
+  const playerName = account?.username ?? "";
 
   return (
     <div className={styles.wrap}>
@@ -123,25 +95,23 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
           <GearIcon />
           <span className={styles.srOnly}>Accessibility settings</span>
         </button>
-        <div className={styles.tools}>
-          <p className={styles.coins}>
-            <CoinIcon />
-            <span>{coins.toLocaleString("en-US")}</span>
-            <span className={styles.srOnly}>Summit Coins</span>
-          </p>
-          <Link className={styles.iconButton} href="/shop" aria-label="Shop">
-            <ShopIcon />
-          </Link>
-          <Link
-            className={styles.iconButton}
-            href="/profile"
-            aria-label={
-              nameValue.trim() ? `Profile for ${nameValue.trim()}` : "Profile"
-            }
-          >
-            <AvatarIcon />
-          </Link>
-          <div className={styles.menuStack}>
+        <div className={styles.right}>
+          <div className={styles.tools}>
+            <p className={styles.coins}>
+              <CoinIcon />
+              <span>{coins.toLocaleString("en-US")}</span>
+              <span className={styles.srOnly}>Summit Coins</span>
+            </p>
+            <Link className={styles.iconButton} href="/shop" aria-label="Shop">
+              <ShopIcon />
+            </Link>
+            <Link
+              className={styles.iconButton}
+              href="/profile"
+              aria-label={playerName ? `Profile for ${playerName}` : "Profile"}
+            >
+              <AvatarIcon />
+            </Link>
             <button
               ref={menuRef}
               type="button"
@@ -156,32 +126,15 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
               <MenuIcon />
               <span className={styles.srOnly}>Game information</span>
             </button>
-            <form className={styles.nameForm} onSubmit={saveName}>
-              <label className={styles.nameLabel} htmlFor={nameFieldId}>
-                Display name
-              </label>
-              <input
-                id={nameFieldId}
-                className={styles.nameInput}
-                value={nameValue}
-                maxLength={DISPLAY_NAME_LIMIT}
-                autoComplete="nickname"
-                placeholder="Your name"
-                onChange={(event) => {
-                  setDraft(event.target.value);
-                  setNotice("");
-                }}
-              />
-              <button type="submit" className={styles.save}>
-                Save
-              </button>
-              {account ? (
-                <button type="button" className={styles.save} onClick={logout}>
-                  Log out
-                </button>
-              ) : null}
-            </form>
           </div>
+          {account ? (
+            <div className={styles.session}>
+              <p className={styles.username}>{account.username}</p>
+              <button type="button" className={styles.save} onClick={logout}>
+                Log out
+              </button>
+            </div>
+          ) : null}
         </div>
       </header>
 
@@ -369,9 +322,6 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
           </div>
         </div>
       ) : null}
-      <p className={styles.notice} aria-live="polite">
-        {notice}
-      </p>
     </div>
   );
 }

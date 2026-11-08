@@ -31,7 +31,7 @@ export function LoginForm() {
     }
     setPassword("");
     setError("");
-    setSignedInName(result.account.displayName);
+    setSignedInName(result.account.username);
   }
 
   if (signedInName) {
@@ -39,8 +39,8 @@ export function LoginForm() {
       <GameCard title="Welcome back">
         <div className={styles.confirm}>
           <p className={styles.note}>
-            {signedInName} is signed in. The saved display name, Summit Coins,
-            and progress for this account are restored.
+            {signedInName} is signed in. The saved username, Summit Coins, and
+            progress for this account are restored.
           </p>
           <GameButton href="/">Back to SummitRush</GameButton>
         </div>
@@ -53,7 +53,7 @@ export function LoginForm() {
       <form className={styles.form} onSubmit={onSubmit} noValidate>
         {account ? (
           <p className={styles.note}>
-            {account.displayName} is already signed in. Logging in switches to
+            {account.username} is already signed in. Logging in switches to
             another saved account.
           </p>
         ) : null}

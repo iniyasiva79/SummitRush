@@ -1,11 +1,11 @@
 :root {
-  --forest: #1f8f68;
-  --forest-deep: #146b4c;
+  --forest: #2478a3;
+  --forest-deep: #195b80;
   --sky: #2bb7c9;
-  --ice: #e5f6fb;
-  --snow: #f7fbff;
+  --ice: #dcecf5;
+  --snow: #ffffff;
   --rock: #3e516c;
-  --rock-ink: #1c2c48;
+  --rock-ink: #19334f;
   --gold: #f2c14d;
   --gold-deep: #d9921b;
   --sunset: #f3a0c0;
@@ -54,7 +54,7 @@ a {
 }
 
 :focus-visible {
-  outline: 3px solid var(--gold-deep);
+  outline: 3px solid #195b80;
   outline-offset: 3px;
 }
 
@@ -75,8 +75,8 @@ html[data-contrast="high"] {
   --ice: #ffffff;
   --rock: #111111;
   --rock-ink: #000000;
-  --forest: #085c32;
-  --forest-deep: #042818;
+  --forest: #0a3f66;
+  --forest-deep: #06263d;
   --outline: 3px solid #000000;
   --shadow: 0 0 0 3px #000000;
 }
