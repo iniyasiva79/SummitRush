@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { logout, useActiveAccount } from "../lib/accounts";
 import { avatarById } from "../lib/avatars";
+import { progressLabel } from "../lib/mountains";
 import { useCoins } from "../lib/coins";
 import {
   updateSettings,
@@ -204,7 +205,9 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
               </li>
               <li>
                 Mountain progress:{" "}
-                {account?.progress.mountainId ?? "not started."}
+                {account
+                  ? progressLabel(account.progress.mountainTasks)
+                  : "not started."}
               </li>
               <li>
                 Checkpoints:{" "}

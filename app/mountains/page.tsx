@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { MountainGate } from "../components/MountainGate";
+import { MountainSelect } from "../components/MountainSelect";
 
 export const metadata: Metadata = {
   title: "Mountains · SummitRush",
-  description: "Mountain selection opens after an avatar is saved.",
+  description: "Choose the next SummitRush mountain. Mount Fuji starts unlocked.",
 };
 
 export default function MountainsPage() {
-  return <MountainGate />;
+  return <MountainSelect />;
 }

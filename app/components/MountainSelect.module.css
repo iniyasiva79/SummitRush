@@ -1,0 +1,181 @@
+.main {
+  width: min(1100px, 100%);
+  margin: 8px auto 48px;
+  color: #ffffff;
+}
+
+.main h1,
+.lead {
+  text-align: center;
+  text-shadow: 0 2px 12px rgb(0 0 0 / 65%);
+}
+
+.main h1 {
+  margin: 8px 0;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+}
+
+.lead {
+  max-width: 42rem;
+  margin: 0 auto 16px;
+  font-weight: 700;
+}
+
+.scroller {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.arrow {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: #2478a3;
+  color: #ffffff;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.arrow:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.track {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 6px 2px 14px;
+}
+
+.card {
+  display: grid;
+  flex: 0 0 min(230px, 72vw);
+  gap: 4px;
+  padding: 8px;
+  scroll-snap-align: center;
+  border: 3px solid transparent;
+  border-radius: 18px;
+  background: rgb(16 36 58 / 55%);
+  color: #ffffff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.focused {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 4px #2478a3;
+}
+
+.art,
+.hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #1c3348;
+}
+
+.art {
+  aspect-ratio: 4 / 3;
+}
+
+.art img,
+.hero img {
+  object-fit: cover;
+}
+
+.name {
+  font-family: var(--font-display), "Lilita One", "Trebuchet MS", sans-serif;
+  font-size: 1.15rem;
+}
+
+.meta,
+.open,
+.locked {
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.locked {
+  color: #f3d2dc;
+}
+
+.open {
+  color: #dcecf5;
+}
+
+.detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(220px, 0.8fr) 180px;
+  gap: 16px;
+  align-items: start;
+  margin-top: 8px;
+  padding: 16px;
+  border-radius: 20px;
+  background: rgb(247 251 255 / 94%);
+  color: #19334f;
+}
+
+.hero {
+  aspect-ratio: 4 / 3;
+  border-radius: 16px;
+}
+
+.detail h1,
+.detail h2 {
+  margin: 0 0 8px;
+  color: #19334f;
+  text-shadow: none;
+}
+
+.copy p {
+  margin: 0 0 8px;
+}
+
+.eyebrow {
+  color: #195b80;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lockNote {
+  font-weight: 800;
+}
+
+.credit {
+  color: #3e516c;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 800px) {
+  .detail {
+    grid-template-columns: 1fr;
+  }
+
+  .detail > :last-child {
+    width: min(220px, 100%);
+  }
+}
+
+:global(html[data-motion="reduce"]) .track {
+  scroll-behavior: auto;
+}
+
+:global(html[data-contrast="high"]) .card,
+:global(html[data-contrast="high"]) .detail {
+  border: 3px solid #000;
+  background: #fff;
+  color: #000;
+}
+
+:global(html[data-contrast="high"]) .focused {
+  box-shadow: 0 0 0 4px #000;
+}

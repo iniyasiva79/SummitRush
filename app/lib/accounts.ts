@@ -17,6 +17,7 @@ const USERNAME_PATTERN = /^[A-Za-z0-9_]{3,20}$/;
 export type PlayerProgress = {
   completedTasks: number;
   mountainId: string | null;
+  mountainTasks: Record<string, number>;
   checkpoints: number;
   achievements: string[];
   successfulPredictions: number;
@@ -60,6 +61,7 @@ export function emptyProgress(): PlayerProgress {
   return {
     completedTasks: 0,
     mountainId: null,
+    mountainTasks: {},
     checkpoints: 0,
     achievements: [],
     successfulPredictions: 0,
@@ -351,6 +353,7 @@ function normalizeProgress(value: Partial<PlayerProgress> | undefined): PlayerPr
   return {
     completedTasks: nonNegative(value.completedTasks),
     mountainId: typeof value.mountainId === "string" ? value.mountainId : null,
+    mountainTasks: normalizeMountainTasks(value.mountainTasks),
     checkpoints: nonNegative(value.checkpoints),
     achievements: Array.isArray(value.achievements)
       ? value.achievements.filter((item) => typeof item === "string")
@@ -360,6 +363,19 @@ function normalizeProgress(value: Partial<PlayerProgress> | undefined): PlayerPr
     bettingWins: nonNegative(value.bettingWins),
     bettingLosses: nonNegative(value.bettingLosses),
   };
+}
+
+function normalizeMountainTasks(value: unknown): Record<string, number> {
+  if (!value || typeof value !== "object") {
+    return {};
+  }
+  const tasks: Record<string, number> = {};
+  for (const [id, count] of Object.entries(value)) {
+    if (typeof count === "number" && Number.isInteger(count) && count > 0) {
+      tasks[id] = count;
+    }
+  }
+  return tasks;
 }
 
 function nonNegative(value: unknown): number {
