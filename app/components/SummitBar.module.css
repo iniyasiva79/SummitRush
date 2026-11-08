@@ -121,7 +121,9 @@
   position: absolute;
   top: calc(100% + 10px);
   left: 0;
-  width: min(320px, 100%);
+  width: min(360px, 100%);
+  max-height: min(70vh, 540px);
+  overflow: auto;
   padding: 16px;
   border: var(--outline);
   border-radius: var(--radius);
@@ -141,14 +143,74 @@
   font-size: 1.6rem;
 }
 
-.later,
+.controls {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.switch,
+.sizeButton {
+  border: 2px solid var(--rock-ink);
+  border-radius: 12px;
+  background: var(--ice);
+  color: var(--rock-ink);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.switch[aria-checked="true"] {
+  background: var(--forest);
+  color: var(--snow);
+}
+
+.sizeGroup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.sizeLabel {
+  flex: 1 1 100%;
+  font-weight: 800;
+}
+
+.sizeButton {
+  flex: 1 1 0;
+  min-height: 44px;
+  text-transform: capitalize;
+}
+
+.sizeButton[aria-pressed="true"] {
+  background: var(--forest);
+  color: var(--snow);
+}
+
+.hint {
+  margin: 4px 0 0;
+  color: var(--rock);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
 .themeLinks {
   margin: 12px 0 0;
   padding: 0;
   list-style: none;
 }
 
-.later li,
 .themeLinks a {
   display: block;
   margin-top: 8px;

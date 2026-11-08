@@ -56,6 +56,29 @@ a {
   outline-offset: 3px;
 }
 
+html[data-text="small"] {
+  font-size: 15px;
+}
+
+html[data-text="medium"] {
+  font-size: 18px;
+}
+
+html[data-text="large"] {
+  font-size: 22px;
+}
+
+html[data-contrast="high"] {
+  --snow: #ffffff;
+  --ice: #ffffff;
+  --rock: #111111;
+  --rock-ink: #000000;
+  --forest: #085c32;
+  --forest-deep: #042818;
+  --outline: 4px solid #000000;
+  --shadow: 5px 5px 0 #000000;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -119,6 +119,12 @@
   }
 }
 
+:global(html[data-motion="reduce"]) .cloudFar,
+:global(html[data-motion="reduce"]) .cloudNear,
+:global(html[data-motion="reduce"]) .light {
+  animation: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cloudFar,
   .cloudNear {

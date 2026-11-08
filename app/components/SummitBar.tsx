@@ -7,6 +7,11 @@ import {
   useDisplayName,
   writeDisplayName,
 } from "../lib/displayName";
+import {
+  updateSettings,
+  useSettings,
+  type TextSize,
+} from "../lib/settings";
 import styles from "./SummitBar.module.css";
 
 type ThemeLink = {
@@ -27,8 +32,10 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
   const menuRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const settings = useSettings();
   const nameFieldId = useId();
   const panelTitleId = useId();
+  const textSizes: TextSize[] = ["small", "medium", "large"];
 
   useEffect(() => {
     if (!menuOpen) {
@@ -155,12 +162,52 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
               Close
             </button>
           </div>
-          <ul className={styles.later}>
-            <li>Audio — not available yet</li>
-            <li>High contrast — not available yet</li>
-            <li>Reduced motion — not available yet</li>
-            <li>Help — not available yet</li>
-          </ul>
+          <div className={styles.controls}>
+            <Switch
+              label="Sound effects"
+              checked={settings.sound}
+              onChange={(sound) => updateSettings({ sound })}
+            />
+            <Switch
+              label="Reduced motion"
+              checked={settings.reducedMotion}
+              onChange={(reducedMotion) => updateSettings({ reducedMotion })}
+            />
+            <Switch
+              label="High contrast"
+              checked={settings.highContrast}
+              onChange={(highContrast) => updateSettings({ highContrast })}
+            />
+            <Switch
+              label="Chaos Cards"
+              checked={settings.chaosCards}
+              onChange={(chaosCards) => updateSettings({ chaosCards })}
+            />
+            <Switch
+              label="Solo, no stakes"
+              checked={settings.noStakes}
+              onChange={(noStakes) => updateSettings({ noStakes })}
+            />
+            <div className={styles.sizeGroup} role="group" aria-label="Text size">
+              <span className={styles.sizeLabel}>Text size</span>
+              {textSizes.map((size) => (
+                <button
+                  key={size}
+                  type="button"
+                  className={styles.sizeButton}
+                  aria-pressed={settings.textSize === size}
+                  onClick={() => updateSettings({ textSize: size })}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+            <p className={styles.hint}>
+              These choices are saved on this browser. There are no sound
+              effects or Chaos Cards to play yet, and tasks do not use stakes
+              yet.
+            </p>
+          </div>
           {themeLinks.length > 0 ? (
             <nav aria-label="On this page">
               <ul className={styles.themeLinks}>
@@ -183,6 +230,29 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
         {notice}
       </p>
     </div>
+  );
+}
+
+function Switch({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={styles.switch}
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+    >
+      <span>{label}</span>
+      <span>{checked ? "On" : "Off"}</span>
+    </button>
   );
 }
 

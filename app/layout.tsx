@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Lilita_One, Nunito } from "next/font/google";
+import { SettingsApplier } from "./components/SettingsApplier";
 import "./globals.css";
 
 const display = Lilita_One({
@@ -21,7 +22,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable}`}>
-      <body>{children}</body>
+      <body>
+        <SettingsApplier />
+        {children}
+      </body>
     </html>
   );
 }
