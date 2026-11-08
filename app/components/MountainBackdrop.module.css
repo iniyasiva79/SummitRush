@@ -3,138 +3,72 @@
   inset: 0;
   z-index: 0;
   overflow: hidden;
-  pointer-events: none;
+  background: #1b3348;
+}
+
+.scene::before {
+  content: "";
+  position: absolute;
+  inset: -4%;
+  background-image: url("/mountains/fuji-kawaguchi-mobile.jpg");
+  background-position: center 38%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  transform-origin: center 40%;
+  animation: drift 42s ease-in-out infinite alternate;
+}
+
+@media (min-width: 721px) {
+  .scene::before {
+    background-image: url("/mountains/fuji-kawaguchi.jpg");
+  }
+}
+
+.shade {
+  position: absolute;
+  inset: 0;
   background:
-    radial-gradient(circle at 18% 0%, rgb(255 255 255 / 80%), transparent 24%),
-    radial-gradient(circle at 82% 6%, rgb(240 193 74 / 40%), transparent 22%),
-    linear-gradient(180deg, #9fd6f2 0%, var(--sky) 34%, var(--ice) 70%);
+    linear-gradient(180deg, rgb(8 18 28 / 18%) 0%, transparent 28%, rgb(8 18 28 / 28%) 100%);
+  pointer-events: none;
 }
 
-.land {
+.credit {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  right: 12px;
+  bottom: 10px;
+  z-index: 1;
+  max-width: min(280px, calc(100% - 24px));
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgb(0 0 0 / 48%);
+  color: #f7fbff;
+  font-size: 0.68rem;
+  line-height: 1.35;
 }
 
-.haze {
-  fill: #c5e4f4;
-}
-
-.forest {
-  fill: #2f8a5a;
-  stroke: var(--rock-ink);
-  stroke-width: 7;
-  stroke-linejoin: round;
-}
-
-.scoria {
-  fill: #8ea0ad;
-  stroke: var(--rock-ink);
-  stroke-width: 7;
-  stroke-linejoin: round;
-}
-
-.forestShade {
-  fill: var(--forest-deep);
-}
-
-.snow {
-  fill: var(--snow);
-  stroke: var(--rock-ink);
-  stroke-width: 7;
-  stroke-linejoin: round;
-}
-
-.gully,
-.gullySoft,
-.reflection,
-.blossom path {
-  fill: none;
-  stroke-linecap: round;
-}
-
-.gully {
-  stroke: #9eb0bc;
-  stroke-width: 10;
-}
-
-.gullySoft {
-  stroke: #c5d3dc;
-  stroke-width: 7;
-}
-
-.shore {
-  fill: #8ea48b;
-}
-
-.lake {
-  fill: #3f92c4;
-}
-
-.reflection {
-  stroke: rgb(244 251 255 / 70%);
-  stroke-width: 8;
-}
-
-.blossom path {
-  stroke: var(--rock-ink);
-  stroke-width: 5;
-}
-
-.blossom circle {
-  fill: #f4c3d2;
-  stroke: var(--rock-ink);
-  stroke-width: 4;
-}
-
-.light {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 45%, rgb(36 48 56 / 10%) 100%);
-}
-
-.cloudFar,
-.cloudNear {
-  fill: var(--snow);
-  stroke: var(--rock-ink);
-  stroke-width: 5;
-}
-
-.cloudFar {
-  animation: drift 48s ease-in-out infinite alternate;
-}
-
-.cloudNear {
-  animation: drift 34s ease-in-out infinite alternate-reverse;
+.credit a {
+  color: inherit;
 }
 
 @keyframes drift {
   from {
-    transform: translate3d(-18px, 0, 0);
+    transform: scale(1.03);
   }
 
   to {
-    transform: translate3d(18px, 0, 0);
+    transform: scale(1.07) translate3d(-1.2%, -0.6%, 0);
   }
 }
 
-:global(html[data-motion="reduce"]) .cloudFar,
-:global(html[data-motion="reduce"]) .cloudNear,
-:global(html[data-motion="reduce"]) .light {
+:global(html[data-motion="reduce"]) .scene::before {
   animation: none;
+  transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cloudFar,
-  .cloudNear {
+  .scene::before {
     animation: none;
-  }
-}
-
-@media (max-width: 640px) {
-  .cloudFar,
-  .cloudNear {
-    stroke-width: 4;
+    transform: none;
   }
 }

@@ -1,7 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from "react";
+import { useCoins } from "../lib/coins";
 import {
   DISPLAY_NAME_LIMIT,
   useDisplayName,
@@ -25,30 +33,38 @@ type SummitBarProps = {
 
 export function SummitBar({ themeLinks = [] }: SummitBarProps) {
   const savedName = useDisplayName();
+  const coins = useCoins();
   const [draft, setDraft] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
   const nameValue = draft ?? savedName;
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const menuRef = useRef<HTMLButtonElement>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
+  const gearRef = useRef<HTMLButtonElement>(null);
+  const infoCloseRef = useRef<HTMLButtonElement>(null);
+  const settingsCloseRef = useRef<HTMLButtonElement>(null);
+  const infoPanelRef = useRef<HTMLDivElement>(null);
+  const settingsPanelRef = useRef<HTMLDivElement>(null);
   const settings = useSettings();
   const nameFieldId = useId();
-  const panelTitleId = useId();
+  const infoTitleId = useId();
+  const settingsTitleId = useId();
   const textSizes: TextSize[] = ["small", "medium", "large"];
 
   useEffect(() => {
-    if (!menuOpen) {
+    if (!infoOpen && !settingsOpen) {
       return;
     }
 
-    closeRef.current?.focus();
+    (infoOpen ? infoCloseRef : settingsCloseRef).current?.focus();
 
     function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setMenuOpen(false);
-        menuRef.current?.focus();
+      if (event.key !== "Escape") {
+        return;
       }
+      setInfoOpen(false);
+      setSettingsOpen(false);
+      (infoOpen ? menuRef : gearRef).current?.focus();
     }
 
     function onPointerDown(event: PointerEvent) {
@@ -56,10 +72,15 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
       if (!(target instanceof Node)) {
         return;
       }
-      if (panelRef.current?.contains(target) || menuRef.current?.contains(target)) {
+      const insideInfo = infoPanelRef.current?.contains(target);
+      const insideSettings = settingsPanelRef.current?.contains(target);
+      const onMenu = menuRef.current?.contains(target);
+      const onGear = gearRef.current?.contains(target);
+      if (insideInfo || insideSettings || onMenu || onGear) {
         return;
       }
-      setMenuOpen(false);
+      setInfoOpen(false);
+      setSettingsOpen(false);
     }
 
     document.addEventListener("keydown", onKey);
@@ -68,7 +89,7 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("pointerdown", onPointerDown);
     };
-  }, [menuOpen]);
+  }, [infoOpen, settingsOpen]);
 
   function saveName(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -86,43 +107,13 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
   return (
     <div className={styles.wrap}>
       <header className={styles.bar}>
-        <button
-          ref={menuRef}
-          type="button"
-          className={styles.iconButton}
-          aria-expanded={menuOpen}
-          aria-controls="settings-panel"
-          onClick={() => setMenuOpen((open) => !open)}
-        >
-          <MenuIcon />
-          <span className={styles.srOnly}>Menu</span>
-        </button>
-
-        <form className={styles.nameForm} onSubmit={saveName}>
-          <label className={styles.nameLabel} htmlFor={nameFieldId}>
-            Display name
-          </label>
-          <input
-            id={nameFieldId}
-            className={styles.nameInput}
-            value={nameValue}
-            maxLength={DISPLAY_NAME_LIMIT}
-            autoComplete="nickname"
-            placeholder="Your name"
-            onChange={(event) => {
-              setDraft(event.target.value);
-              setNotice("");
-            }}
-          />
-          <button type="submit" className={styles.save}>
-            Save
-          </button>
-        </form>
-
-        <div className={styles.cluster}>
+        <Link className={styles.logo} href="/">
+          SummitRush
+        </Link>
+        <div className={styles.tools}>
           <p className={styles.coins}>
             <CoinIcon />
-            <span>0</span>
+            <span>{coins.toLocaleString("en-US")}</span>
             <span className={styles.srOnly}>Summit Coins</span>
           </p>
           <Link className={styles.iconButton} href="/shop" aria-label="Shop">
@@ -137,26 +128,150 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
           >
             <AvatarIcon />
           </Link>
+          <button
+            ref={gearRef}
+            type="button"
+            className={styles.iconButton}
+            aria-expanded={settingsOpen}
+            aria-controls="accessibility-panel"
+            onClick={() => {
+              setSettingsOpen((open) => !open);
+              setInfoOpen(false);
+            }}
+          >
+            <GearIcon />
+            <span className={styles.srOnly}>Accessibility settings</span>
+          </button>
+          <div className={styles.menuStack}>
+            <button
+              ref={menuRef}
+              type="button"
+              className={styles.iconButton}
+              aria-expanded={infoOpen}
+              aria-controls="info-panel"
+              onClick={() => {
+                setInfoOpen((open) => !open);
+                setSettingsOpen(false);
+              }}
+            >
+              <MenuIcon />
+              <span className={styles.srOnly}>Game information</span>
+            </button>
+            <form className={styles.nameForm} onSubmit={saveName}>
+              <label className={styles.nameLabel} htmlFor={nameFieldId}>
+                Display name
+              </label>
+              <input
+                id={nameFieldId}
+                className={styles.nameInput}
+                value={nameValue}
+                maxLength={DISPLAY_NAME_LIMIT}
+                autoComplete="nickname"
+                placeholder="Your name"
+                onChange={(event) => {
+                  setDraft(event.target.value);
+                  setNotice("");
+                }}
+              />
+              <button type="submit" className={styles.save}>
+                Save
+              </button>
+            </form>
+          </div>
         </div>
       </header>
 
-      {menuOpen ? (
+      {infoOpen ? (
         <div
-          ref={panelRef}
-          id="settings-panel"
+          ref={infoPanelRef}
+          id="info-panel"
           className={styles.panel}
           role="region"
-          aria-labelledby={panelTitleId}
+          aria-labelledby={infoTitleId}
         >
           <div className={styles.panelHeader}>
-            <h2 id={panelTitleId}>Settings</h2>
+            <h2 id={infoTitleId}>Field notes</h2>
             <button
-              ref={closeRef}
+              ref={infoCloseRef}
               type="button"
               className={styles.save}
               onClick={() => {
-                setMenuOpen(false);
+                setInfoOpen(false);
                 menuRef.current?.focus();
+              }}
+            >
+              Close
+            </button>
+          </div>
+          <InfoSection title="Chaos Cards">
+            <p>
+              Chaos Cards are occasional trail events, at most three per
+              mountain, and they never interrupt a running timer.
+            </p>
+            <ul>
+              <li>Boulder Breakdown: a short puzzle can earn 20 coins.</li>
+              <li>Rockslide: a simple math problem clears the path.</li>
+              <li>Mystery Supply Crate: a small coin reward or a cosmetic.</li>
+            </ul>
+            <p>Events encountered: none yet.</p>
+          </InfoSection>
+          <InfoSection title="Bonuses">
+            <ul>
+              <li>Perfect Pace: +25 coins for a very close time prediction.</li>
+              <li>Underdog: +50 coins for improving on a difficult task.</li>
+              <li>Comeback Climber: +30 coins for finishing after the prediction.</li>
+              <li>Checkpoint: +10 coins. Summit: +200 coins. Team climb: +100 coins.</li>
+            </ul>
+            <p>Bonuses earned: none yet.</p>
+          </InfoSection>
+          <InfoSection title="Progress tracking">
+            <ul>
+              <li>Completed tasks: none yet.</li>
+              <li>Mountain progress: not started.</li>
+              <li>Checkpoints: none yet.</li>
+              <li>Achievements: none yet.</li>
+            </ul>
+          </InfoSection>
+          <InfoSection title="Wins and losses">
+            <ul>
+              <li>Successful time predictions: none yet.</li>
+              <li>Unsuccessful time predictions: none yet.</li>
+              <li>Virtual coin betting results: none yet.</li>
+            </ul>
+          </InfoSection>
+          {themeLinks.length > 0 ? (
+            <nav aria-label="On this page">
+              <ul className={styles.themeLinks}>
+                {themeLinks.map((link) => (
+                  <li key={link.href}>
+                    <a href={link.href} onClick={() => setInfoOpen(false)}>
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ) : null}
+        </div>
+      ) : null}
+
+      {settingsOpen ? (
+        <div
+          ref={settingsPanelRef}
+          id="accessibility-panel"
+          className={styles.panel}
+          role="region"
+          aria-labelledby={settingsTitleId}
+        >
+          <div className={styles.panelHeader}>
+            <h2 id={settingsTitleId}>Accessibility</h2>
+            <button
+              ref={settingsCloseRef}
+              type="button"
+              className={styles.save}
+              onClick={() => {
+                setSettingsOpen(false);
+                gearRef.current?.focus();
               }}
             >
               Close
@@ -208,28 +323,27 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
               yet.
             </p>
           </div>
-          {themeLinks.length > 0 ? (
-            <nav aria-label="On this page">
-              <ul className={styles.themeLinks}>
-                {themeLinks.map((link) => (
-                  <li key={link.href}>
-                    <a
-                      href={link.href}
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          ) : null}
         </div>
       ) : null}
       <p className={styles.notice} aria-live="polite">
         {notice}
       </p>
     </div>
+  );
+}
+
+function InfoSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <details className={styles.section}>
+      <summary>{title}</summary>
+      <div className={styles.sectionBody}>{children}</div>
+    </details>
   );
 }
 
@@ -260,6 +374,15 @@ function MenuIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.icon}>
       <path d="M4 7h16M4 12h16M4 17h16" />
+    </svg>
+  );
+}
+
+function GearIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.icon}>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 3.5v2.2M12 18.3v2.2M3.5 12h2.2M18.3 12h2.2M5.8 5.8l1.6 1.6M16.6 16.6l1.6 1.6M18.2 5.8l-1.6 1.6M7.4 16.6l-1.6 1.6" />
     </svg>
   );
 }
