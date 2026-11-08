@@ -1,1 +1,1 @@
-# SummitRush
+# Summit Rush
