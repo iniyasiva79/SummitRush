@@ -36,7 +36,9 @@ import {
   mountainById,
   tasksCompleted,
 } from "../lib/mountains";
+import { rollAndSaveChaos } from "../lib/chaos-apply";
 import { useSettings } from "../lib/settings";
+import { ChaosScenery } from "./ChaosScenery";
 import { AvatarFigure } from "./AvatarFigure";
 import { GameButton } from "./GameButton";
 import { ScreenFrame } from "./ScreenFrame";
@@ -203,6 +205,10 @@ export function ClimbScreen({ mountainId }: ClimbScreenProps) {
     if (!account) {
       return;
     }
+    if (account.chaosEvents.some((item) => !item.acknowledged)) {
+      setNotice("Finish the trail event before starting another task.");
+      return;
+    }
     const started = startTask(account.tasks, taskId, account.coins, Date.now(), settings.noStakes);
     if (!started.ok) {
       setNotice(started.error);
@@ -249,6 +255,20 @@ export function ClimbScreen({ mountainId }: ClimbScreenProps) {
       tasks: outcome.tasks,
       pendingResultTaskId: outcome.pendingResultTaskId,
       progress,
+    });
+    const latest = account;
+    rollAndSaveChaos({
+      account: {
+        ...latest,
+        coins: outcome.coins,
+        tasks: outcome.tasks,
+        progress,
+      },
+      enabled: settings.chaosCards,
+      mountainId: task.mountainId,
+      triggerKey: `task:${task.id}:finish`,
+      resumeTaskId: null,
+      tasks: outcome.tasks,
     });
   }
 
@@ -298,6 +318,11 @@ export function ClimbScreen({ mountainId }: ClimbScreenProps) {
                 ))}
               </div>
             ) : null}
+            {account.chaosEvents
+              .filter((item) => item.mountainId === mountain.id && !item.acknowledged)
+              .map((item) => (
+                <ChaosScenery key={item.id} card={item.card} fraction={fraction} />
+              ))}
             {visualTask
               ? visualTask.checkpoints.map((checkpoint) => {
                   const point = trailPoint(
@@ -389,6 +414,7 @@ export function ClimbScreen({ mountainId }: ClimbScreenProps) {
             <ActiveTask
               task={visualTask}
               now={clock}
+              chaosOpen={account.chaosEvents.some((item) => !item.acknowledged)}
               onPause={() => updateActiveAccount({ tasks: replaceTask(account.tasks, pauseTask(visualTask, Date.now())) })}
               onResume={() => updateActiveAccount({ tasks: replaceTask(account.tasks, resumeTask(visualTask, Date.now())) })}
               onFinish={() => settle(visualTask)}
@@ -400,7 +426,7 @@ export function ClimbScreen({ mountainId }: ClimbScreenProps) {
             empty="No pending tasks."
             accountCoins={account.coins}
             noStakes={settings.noStakes}
-            blocked={Boolean(active)}
+            blocked={Boolean(active) || account.chaosEvents.some((item) => !item.acknowledged)}
             onEdit={setEditingId}
             onDelete={removeTask}
             onStart={begin}
@@ -461,12 +487,14 @@ export function ClimbScreen({ mountainId }: ClimbScreenProps) {
 function ActiveTask({
   task,
   now,
+  chaosOpen,
   onPause,
   onResume,
   onFinish,
 }: {
   task: GameTask;
   now: number | null;
+  chaosOpen: boolean;
   onPause: () => void;
   onResume: () => void;
   onFinish: () => void;
@@ -487,11 +515,12 @@ function ActiveTask({
         {task.status === "running" ? (
           <button type="button" className={styles.secondary} onClick={onPause}>Pause</button>
         ) : null}
-        {task.status === "paused" ? (
+        {task.status === "paused" && !chaosOpen ? (
           <button type="button" className={styles.secondary} onClick={onResume}>Resume</button>
         ) : null}
         {task.status === "checkpoint" ? <p>The work timer is paused for a checkpoint.</p> : null}
-        {task.status === "running" || task.status === "paused" ? (
+        {chaosOpen ? <p>The work timer is paused for a Chaos Card.</p> : null}
+        {task.status === "running" || (task.status === "paused" && !chaosOpen) ? (
           <button type="button" className={styles.primary} onClick={onFinish}>Finish</button>
         ) : null}
       </div>

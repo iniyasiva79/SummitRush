@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { logout, useActiveAccount } from "../lib/accounts";
 import { avatarById } from "../lib/avatars";
-import { MOUNTAINS, progressLabel, tasksCompleted } from "../lib/mountains";
+import { chaosSummary, chaosTitle } from "../lib/chaos";
+import { MOUNTAINS, mountainById, progressLabel, tasksCompleted } from "../lib/mountains";
 import { CheckpointHost } from "./CheckpointHost";
 import { useCoins } from "../lib/coins";
 import {
@@ -190,7 +191,30 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
               <li>Rockslide: a simple math problem clears the path.</li>
               <li>Mystery Supply Crate: a small coin reward or a cosmetic.</li>
             </ul>
-            <p>Events encountered: 0. Chaos Cards are not active during this climb.</p>
+            <p>
+              Setting: {settings.chaosCards ? "on" : "off"}. Cards triggered:{" "}
+              {account?.chaosEvents.length ?? 0}. Rewards received:{" "}
+              {account
+                ? account.chaosEvents.reduce((sum, event) => sum + event.coinDelta, 0)
+                : 0}{" "}
+              Summit Coins. Penalties received: 0.
+            </p>
+            {account && account.chaosEvents.length > 0 ? (
+              <ul>
+                {account.chaosEvents.map((event) => (
+                  <li key={event.id}>
+                    {chaosTitle(event.card)}
+                    {mountainById(event.mountainId) ? ` · ${mountainById(event.mountainId)?.name}` : ""}
+                    {": "}
+                    {chaosSummary(event.card)}{" "}
+                    {event.coinDelta > 0 ? `Reward +${event.coinDelta} coins. ` : "No coin change. "}
+                    {event.acknowledged ? "Cleared." : "Still on the trail."}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No Chaos Cards have been triggered on this account yet.</p>
+            )}
           </InfoSection>
           <InfoSection title="Bonuses">
             <ul>
@@ -331,8 +355,8 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
             <p className={styles.hint}>
               These choices are saved on this browser. Solo, no stakes skips
               task bets. Checkpoint rewards still apply. Summit Coins are
-              fictional. Sound effects and Chaos Cards are not part of this
-              climb yet.
+              fictional. Chaos Cards follow the on/off setting above and never
+              interrupt a running timer.
             </p>
           </div>
         </div>

@@ -386,6 +386,31 @@ export function skipCheckpoint(task: GameTask, now: number): GameTask {
   return resumeFromCheckpoint(task, now, "skipped");
 }
 
+export function closeCheckpoint(task: GameTask, state: "skipped"): GameTask {
+  return {
+    ...task,
+    status: "paused",
+    segmentStartedAt: null,
+    openCheckpointId: null,
+    checkpoints: task.checkpoints.map((item) =>
+      item.id === task.openCheckpointId ? { ...item, state } : item,
+    ),
+  };
+}
+
+export function parkCheckpoint(task: GameTask): GameTask {
+  const open = task.checkpoints.find((item) => item.id === task.openCheckpointId);
+  if (!open || open.state === "pending") {
+    return task;
+  }
+  return {
+    ...task,
+    status: "paused",
+    segmentStartedAt: null,
+    openCheckpointId: null,
+  };
+}
+
 export function resumeOpenCheckpoint(task: GameTask, now: number): GameTask {
   const checkpoint = task.checkpoints.find((item) => item.id === task.openCheckpointId);
   const state = checkpoint?.state === "pending" ? "pending" : checkpoint?.state;

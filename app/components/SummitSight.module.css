@@ -1,31 +1,10 @@
-.backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  display: grid;
-  place-items: center;
-  padding: 16px;
-  background: rgb(12 28 46 / 72%);
-}
-
-.dialog {
-  width: min(760px, 100%);
-  max-height: min(92vh, 860px);
-  overflow: auto;
-  padding: 20px;
-  border: 2px solid rgb(255 255 255 / 70%);
-  border-radius: 22px;
-  background: #f7fbff;
-  color: var(--rock-ink);
-  box-shadow: 0 24px 60px rgb(0 0 0 / 35%);
-}
-
 .kicker,
 .method,
 .note,
 .error,
 .success,
-.fail {
+.fail,
+.reward {
   margin: 0 0 8px;
   font-weight: 800;
 }
@@ -33,12 +12,15 @@
 .kicker {
   color: var(--forest-deep);
   letter-spacing: 0.04em;
+  text-align: center;
   text-transform: uppercase;
 }
 
-.dialog h2 {
-  margin: 0 0 8px;
-  font-size: clamp(1.8rem, 4vw, 2.6rem);
+.title {
+  margin: 0 0 10px;
+  color: #19334f;
+  font-size: clamp(2.1rem, 5vw, 3rem);
+  text-align: center;
 }
 
 .note,
@@ -52,7 +34,14 @@
 
 .success {
   color: var(--forest-deep);
-  font-size: 1.4rem;
+  font-size: clamp(1.6rem, 3vw, 2rem);
+  text-align: center;
+}
+
+.reward {
+  color: var(--forest-deep);
+  font-size: 1.35rem;
+  text-align: center;
 }
 
 .fail {
@@ -60,11 +49,37 @@
   font-size: 1.3rem;
 }
 
-.flag {
-  margin: 0;
-  color: var(--forest);
-  font-size: 3rem;
-  text-align: center;
+.flagPlant {
+  display: block;
+  position: relative;
+  width: 56px;
+  height: 72px;
+  margin: 4px auto 8px;
+  transform-origin: bottom center;
+  animation: plantFlag 700ms ease;
+}
+
+.pole {
+  position: absolute;
+  bottom: 0;
+  left: 8px;
+  width: 4px;
+  height: 72px;
+  border-radius: 2px;
+  background: #f7f3ea;
+  box-shadow: 0 0 0 1px rgb(16 36 58 / 45%);
+}
+
+.cloth {
+  position: absolute;
+  top: 2px;
+  left: 12px;
+  width: 36px;
+  height: 24px;
+  background: #3caf62;
+  clip-path: polygon(0 0, 100% 18%, 78% 50%, 100% 82%, 0 100%);
+  transform-origin: left center;
+  animation: wave 1.2s ease-in-out infinite;
 }
 
 .stack {
@@ -80,6 +95,7 @@
 
 .primary,
 .secondary,
+.resume,
 .dot,
 .circle {
   border: 2px solid var(--rock-ink);
@@ -89,16 +105,25 @@
 }
 
 .primary,
-.secondary {
+.secondary,
+.resume {
   min-height: 44px;
   padding: 8px 14px;
   border-radius: 999px;
 }
 
-.primary {
-  background: var(--forest);
+.primary,
+.resume {
+  background: #2478a3;
   color: #fff;
   border-color: transparent;
+}
+
+.resume {
+  width: min(100%, 360px);
+  min-height: 56px;
+  margin: 8px auto 0;
+  font-size: 1.15rem;
 }
 
 .secondary,
@@ -197,8 +222,20 @@
   }
 }
 
+@keyframes plantFlag {
+  from { transform: scaleY(0.2); opacity: 0; }
+  to { transform: scaleY(1); opacity: 1; }
+}
+
+@keyframes wave {
+  from { transform: skewY(0deg); }
+  50% { transform: skewY(8deg); }
+  to { transform: skewY(0deg); }
+}
+
 :global(html[data-motion="reduce"]) .circle,
-:global(html[data-motion="reduce"]) .flag {
+:global(html[data-motion="reduce"]) .flagPlant,
+:global(html[data-motion="reduce"]) .cloth {
   animation: none;
 }
 

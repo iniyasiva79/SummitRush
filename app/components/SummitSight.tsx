@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { GameOverlay } from "./GameOverlay";
 import styles from "./SummitSight.module.css";
 
 type Method = "webcam" | "alternative";
@@ -241,17 +242,11 @@ export function SummitSight({
     circleIndex === 0 ? styles.left : circleIndex === 1 ? styles.upper : styles.right;
 
   return (
-    <div className={styles.backdrop} role="presentation">
-      <section
-        className={styles.dialog}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-      >
+    <GameOverlay labelledBy={titleId}>
         <p className={styles.kicker}>SummitSight — focus checkpoint</p>
-        <h2 id={titleId}>A short visual break</h2>
+        <h2 id={titleId} className={styles.title}>Take a Break</h2>
         <p className={styles.note}>
-          This is an interactive visual break. It does not measure alertness, concentration, productivity, or eye health. The camera stays off unless you choose webcam tracking, and video is not recorded or uploaded.
+          SummitSight is an interactive visual activity designed to encourage users to stay engaged and take short breaks during longer work sessions.
         </p>
         {startingCamera ? <p>Requesting the camera. Nothing is counted until gaze samples arrive.</p> : null}
         {cameraError ? <p className={styles.error}>{cameraError}</p> : null}
@@ -259,9 +254,12 @@ export function SummitSight({
         {phase === "intro" ? (
           <div className={styles.stack}>
             <p>
+              Using a camera is recommended for eye-tracking. If your webcam is not working, you can use your mouse, touch, or keyboard instead.
+            </p>
+            <p>
               {summitSightEnabled
-                ? "The work timer is paused. Follow three glowing circles, one at a time, for 15 seconds."
-                : "SummitSight is off for this task. You can skip this checkpoint with no coin reward, or play the break anyway."}
+                ? "The work timer is paused. Follow three glowing circles, one at a time, for 15 seconds. The camera stays off unless you choose it, and video is not recorded or uploaded."
+                : "SummitSight is off for this task. You can skip this checkpoint with no coin reward, or play the break anyway. The camera stays off unless you choose it, and video is not recorded or uploaded."}
             </p>
             <div className={styles.actions}>
               <button type="button" className={styles.primary} onClick={() => void startWebcam()}>
@@ -355,11 +353,15 @@ export function SummitSight({
         {phase === "success" ? (
           <div className={styles.stack}>
             <p className={styles.success}>CHECKPOINT COMPLETE!</p>
-            <p className={styles.flag} aria-hidden="true">⚑</p>
-            <p>10 Summit Coins have been added once for this checkpoint. The work timer resumes when you continue.</p>
+            <span className={styles.flagPlant} aria-hidden="true">
+              <span className={styles.pole} />
+              <span className={styles.cloth} />
+            </span>
+            <p className={styles.reward}>+10 Summit Coins</p>
+            <p>The work timer stays paused until you resume the climb.</p>
             <CircleStatus done={alreadyRewarded ? [true, true, true] : done} />
-            <button type="button" className={styles.primary} onClick={onResume}>
-              Resume climb
+            <button type="button" className={styles.resume} onClick={onResume}>
+              Resume Climb
             </button>
           </div>
         ) : null}
@@ -405,8 +407,7 @@ export function SummitSight({
             </div>
           </div>
         ) : null}
-      </section>
-    </div>
+    </GameOverlay>
   );
 }
 
@@ -465,7 +466,7 @@ function placePreview() {
   box.style.position = "fixed";
   box.style.left = "12px";
   box.style.bottom = "12px";
-  box.style.zIndex = "90";
+  box.style.zIndex = "450";
   box.style.width = "160px";
   box.style.height = "auto";
 }

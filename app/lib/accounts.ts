@@ -4,6 +4,11 @@ import {
   normalizeAccessoryIds,
   type AvatarId,
 } from "./avatars";
+import {
+  normalizeChaosEvents,
+  normalizeChaosRolls,
+  type ChaosEvent,
+} from "./chaos";
 import { STARTING_COINS } from "./constants";
 import { normalizeTasks, type GameTask } from "./gameplay";
 
@@ -47,6 +52,8 @@ export type PublicAccount = {
   equippedAccessories: string[];
   tasks: GameTask[];
   pendingResultTaskId: string | null;
+  chaosEvents: ChaosEvent[];
+  chaosRolls: string[];
 };
 
 type StoredAccount = PublicAccount & {
@@ -137,6 +144,8 @@ export function updateActiveAccount(
       | "equippedAccessories"
       | "tasks"
       | "pendingResultTaskId"
+      | "chaosEvents"
+      | "chaosRolls"
     >
   >,
 ): void {
@@ -179,6 +188,12 @@ export function updateActiveAccount(
         : typeof partial.pendingResultTaskId === "string"
           ? partial.pendingResultTaskId
           : current.pendingResultTaskId,
+    chaosEvents: partial.chaosEvents
+      ? normalizeChaosEvents(partial.chaosEvents)
+      : current.chaosEvents,
+    chaosRolls: partial.chaosRolls
+      ? normalizeChaosRolls(partial.chaosRolls)
+      : current.chaosRolls,
   };
   writeAccounts(accounts);
   notify();
@@ -212,6 +227,8 @@ export async function signup(
     equippedAccessories: [],
     tasks: [],
     pendingResultTaskId: null,
+    chaosEvents: [],
+    chaosRolls: [],
     passwordSalt: bytesToBase64(salt),
     passwordHash,
     passwordIterations: ITERATIONS,
@@ -379,6 +396,8 @@ function normalizeAccount(account: StoredAccount): StoredAccount {
     tasks: normalizeTasks(account.tasks),
     pendingResultTaskId:
       typeof account.pendingResultTaskId === "string" ? account.pendingResultTaskId : null,
+    chaosEvents: normalizeChaosEvents(account.chaosEvents),
+    chaosRolls: normalizeChaosRolls(account.chaosRolls),
     passwordIterations: account.passwordIterations || ITERATIONS,
   };
 }
@@ -441,6 +460,8 @@ function toPublic(account: StoredAccount): PublicAccount {
     equippedAccessories: account.equippedAccessories,
     tasks: account.tasks,
     pendingResultTaskId: account.pendingResultTaskId,
+    chaosEvents: account.chaosEvents,
+    chaosRolls: account.chaosRolls,
   };
 }
 
