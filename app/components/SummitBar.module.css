@@ -104,6 +104,14 @@
   color: #ffffff;
 }
 
+.avatarPhoto {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center 16%;
+}
+
 .icon,
 .coinIcon {
   width: 22px;

@@ -1,16 +1,11 @@
 import type { Metadata } from "next";
-import { PlaceholderPage } from "../components/PlaceholderPage";
+import { ProfileScreen } from "../components/ProfileScreen";
 
 export const metadata: Metadata = {
   title: "Profile · SummitRush",
-  description: "SummitRush profile and avatar selection are not ready yet.",
+  description: "Your SummitRush avatar and username.",
 };
 
 export default function ProfilePage() {
-  return (
-    <PlaceholderPage
-      title="Profile"
-      note="Avatar selection is not built yet. Your username is shown below."
-    />
-  );
+  return <ProfileScreen />;
 }

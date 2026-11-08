@@ -1,8 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { logout, useActiveAccount } from "../lib/accounts";
+import { avatarById } from "../lib/avatars";
 import { useCoins } from "../lib/coins";
 import {
   updateSettings,
@@ -77,6 +79,7 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
   }, [infoOpen, settingsOpen]);
 
   const playerName = account?.username ?? "";
+  const avatar = avatarById(account?.avatarId);
 
   return (
     <div className={styles.wrap}>
@@ -110,7 +113,17 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
               href="/profile"
               aria-label={playerName ? `Profile for ${playerName}` : "Profile"}
             >
-              <AvatarIcon />
+              {avatar ? (
+                <Image
+                  className={styles.avatarPhoto}
+                  src={avatar.src}
+                  alt=""
+                  width={30}
+                  height={30}
+                />
+              ) : (
+                <AvatarIcon />
+              )}
             </Link>
             <button
               ref={menuRef}

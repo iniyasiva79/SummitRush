@@ -1,4 +1,9 @@
 import { useSyncExternalStore } from "react";
+import {
+  isAvatarId,
+  normalizeAccessoryIds,
+  type AvatarId,
+} from "./avatars";
 import { STARTING_COINS } from "./constants";
 
 export const ACCOUNTS_KEY = "summitrush.accounts";
@@ -29,6 +34,8 @@ export type PublicAccount = {
   displayName: string;
   coins: number;
   progress: PlayerProgress;
+  avatarId: AvatarId | null;
+  equippedAccessories: string[];
 };
 
 type StoredAccount = PublicAccount & {
@@ -101,7 +108,9 @@ export function readActiveAccount(): PublicAccount | null {
 }
 
 export function updateActiveAccount(
-  partial: Partial<Pick<PublicAccount, "displayName" | "coins" | "progress">>,
+  partial: Partial<
+    Pick<PublicAccount, "displayName" | "coins" | "progress" | "avatarId" | "equippedAccessories">
+  >,
 ): void {
   const sessionId = readSessionId();
   if (!sessionId) {
@@ -126,6 +135,15 @@ export function updateActiveAccount(
     progress: partial.progress
       ? normalizeProgress(partial.progress)
       : current.progress,
+    avatarId:
+      partial.avatarId === null
+        ? null
+        : partial.avatarId && isAvatarId(partial.avatarId)
+          ? partial.avatarId
+          : current.avatarId,
+    equippedAccessories: partial.equippedAccessories
+      ? normalizeAccessoryIds(partial.equippedAccessories)
+      : current.equippedAccessories,
   };
   writeAccounts(accounts);
   notify();
@@ -155,6 +173,8 @@ export async function signup(
     displayName: input.username.trim(),
     coins: STARTING_COINS,
     progress: emptyProgress(),
+    avatarId: null,
+    equippedAccessories: [],
     passwordSalt: bytesToBase64(salt),
     passwordHash,
     passwordIterations: ITERATIONS,
@@ -317,6 +337,8 @@ function normalizeAccount(account: StoredAccount): StoredAccount {
         ? account.coins
         : STARTING_COINS,
     progress: normalizeProgress(account.progress),
+    avatarId: isAvatarId(account.avatarId) ? account.avatarId : null,
+    equippedAccessories: normalizeAccessoryIds(account.equippedAccessories),
     passwordIterations: account.passwordIterations || ITERATIONS,
   };
 }
@@ -354,6 +376,8 @@ function toPublic(account: StoredAccount): PublicAccount {
     displayName: account.displayName,
     coins: account.coins,
     progress: account.progress,
+    avatarId: account.avatarId,
+    equippedAccessories: account.equippedAccessories,
   };
 }
 

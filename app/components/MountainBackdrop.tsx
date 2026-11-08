@@ -1,11 +1,16 @@
 import styles from "./MountainBackdrop.module.css";
 
-export function MountainBackdrop() {
+type MountainBackdropProps = {
+  scene?: "summit" | "terrain";
+};
+
+export function MountainBackdrop({ scene = "summit" }: MountainBackdropProps) {
   return (
-    <div className={styles.scene}>
+    <div className={scene === "terrain" ? `${styles.scene} ${styles.terrain}` : styles.scene}>
       <p className={styles.srOnly}>
-        An original illustrated mountain range with snowy peaks, rocky cliffs,
-        evergreen forest, and a golden meadow under a turquoise and pink sky.
+        {scene === "terrain"
+          ? "Rocky ground and a turquoise stream, with pines and distant snowy ridges."
+          : "An original illustrated mountain range with snowy peaks, rocky cliffs, evergreen forest, and a golden meadow under a turquoise and pink sky."}
       </p>
       <div className={styles.light} />
       <svg

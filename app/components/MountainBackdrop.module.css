@@ -25,6 +25,18 @@
   }
 }
 
+.terrain::before {
+  background-image: url("/terrain/rocks.jpg");
+  background-position: center 62%;
+}
+
+@media (min-width: 721px) {
+  .scene.terrain::before {
+    background-image: url("/terrain/rocks.jpg");
+    background-position: center 58%;
+  }
+}
+
 .light,
 .mist,
 .clouds {

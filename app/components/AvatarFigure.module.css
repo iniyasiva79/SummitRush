@@ -1,0 +1,65 @@
+.card,
+.profile {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #1c3348;
+}
+
+.card {
+  aspect-ratio: 3 / 4;
+}
+
+.profile {
+  width: min(280px, 100%);
+  aspect-ratio: 3 / 4;
+}
+
+.card > img,
+.profile > img {
+  object-fit: cover;
+  object-position: center 20%;
+}
+
+.head,
+.face {
+  position: absolute;
+  width: 28%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 8px 18px rgb(16 32 58 / 35%);
+}
+
+.head img,
+.face img {
+  object-fit: cover;
+}
+
+.head {
+  top: 7%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.face {
+  top: 22%;
+  left: 58%;
+  width: 34%;
+}
+
+.gearList {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  left: 8px;
+  margin: 0;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: rgb(16 36 58 / 72%);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-align: center;
+}

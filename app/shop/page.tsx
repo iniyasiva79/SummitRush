@@ -10,7 +10,7 @@ export default function ShopPage() {
   return (
     <PlaceholderPage
       title="Shop"
-      note="The customization shop is not built yet. This page is only here so the shop icon has a destination."
+      note="The customization shop is not open yet. New players keep the basic avatar. Accessories bought later will appear on that avatar."
     />
   );
 }
