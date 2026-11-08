@@ -4,6 +4,7 @@ export type AvatarOption = {
   id: AvatarId;
   label: string;
   src: string;
+  trailSrc: string;
   detail: string;
 };
 
@@ -19,12 +20,14 @@ export const AVATARS: AvatarOption[] = [
     id: "male",
     label: "Male mountaineer",
     src: "/avatars/male.jpg",
+    trailSrc: "/avatars/male-trail.png",
     detail: "Teal jacket, pack, rope, harness, and boots.",
   },
   {
     id: "female",
     label: "Female mountaineer",
     src: "/avatars/female.jpg",
+    trailSrc: "/avatars/female-trail.png",
     detail: "Rust jacket, pack, rope, harness, and boots.",
   },
 ];

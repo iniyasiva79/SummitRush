@@ -26,10 +26,10 @@ export function AvatarFigure({
   return (
     <div className={size === "profile" ? styles.profile : size === "trail" ? styles.trail : styles.card}>
       <Image
-        src={avatar.src}
+        src={size === "trail" ? avatar.trailSrc : avatar.src}
         alt=""
         fill
-        sizes="(max-width: 720px) 90vw, 360px"
+        sizes={size === "trail" ? "96px" : "(max-width: 720px) 90vw, 360px"}
       />
       {gear.map((item) => (
         <span

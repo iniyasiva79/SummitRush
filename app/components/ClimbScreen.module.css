@@ -19,7 +19,7 @@
   background: #16324a;
 }
 
-.stage img {
+.photo {
   object-fit: cover;
   object-position: center 30%;
 }
@@ -32,16 +32,33 @@
   pointer-events: none;
 }
 
-.trail polyline {
+.trail path {
   fill: none;
-  stroke: rgb(255 255 255 / 88%);
-  stroke-width: 1.4;
   stroke-linecap: round;
-  stroke-dasharray: 1.5 1.2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.trail path:first-child {
+  stroke: rgb(58 38 24 / 48%);
+  stroke-width: 22px;
+}
+
+.trail path:last-child {
+  stroke: rgb(214 176 122 / 78%);
+  stroke-width: 8px;
+}
+
+.backLink {
+  align-self: flex-start;
+  min-height: 40px;
+  margin: 0 0 8px;
+  padding: 8px 16px;
+  box-shadow: none;
 }
 
 .trailhead,
-.summitFlag {
+.summitMark {
   position: absolute;
   z-index: 2;
   padding: 4px 8px;
@@ -57,20 +74,86 @@
   bottom: 16px;
 }
 
-.summitFlag {
-  top: 16px;
-  right: 16px;
+.summitMark {
+  left: clamp(18px, var(--x), calc(100% - 72px));
+  bottom: clamp(28px, var(--y), calc(100% - 36px));
+  transform: translate(-50%, 0);
 }
 
-.celebrate {
-  background: var(--gold);
-  color: var(--rock-ink);
-  animation: pop 700ms ease;
+.summitPlant {
+  position: absolute;
+  z-index: 4;
+  width: 48px;
+  height: 64px;
+  left: clamp(24px, calc(var(--x) + 34px), calc(100% - 24px));
+  bottom: clamp(48px, calc(var(--y) + 10px), calc(100% - 68px));
+  transform: translate(-50%, 0);
+  transform-origin: bottom center;
+  pointer-events: none;
+  animation: plantFlag 700ms ease;
+}
+
+.pole {
+  position: absolute;
+  bottom: 0;
+  left: 6px;
+  width: 4px;
+  height: 64px;
+  border-radius: 2px;
+  background: #f7f3ea;
+  box-shadow: 0 0 0 1px rgb(16 36 58 / 45%);
+}
+
+.cloth {
+  position: absolute;
+  top: 2px;
+  left: 10px;
+  width: 34px;
+  height: 22px;
+  background: #3caf62;
+  box-shadow: 0 0 0 1px #fff;
+  clip-path: polygon(0 0, 100% 18%, 78% 50%, 100% 82%, 0 100%);
+  transform-origin: left center;
+  animation: wave 1.2s ease-in-out infinite;
+}
+
+.completeBanner {
+  display: inline-block;
+  margin: 0 0 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #3caf62;
+  color: #fff;
+  font-weight: 800;
+  text-shadow: none;
+}
+
+.confetti {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.confetti span {
+  position: absolute;
+  top: -8%;
+  left: var(--x);
+  width: 8px;
+  height: 12px;
+  background: var(--color);
+  border-radius: 2px;
+  transform: rotate(var(--tilt));
+  animation: confettiFall 1.7s ease-in forwards;
+  animation-delay: var(--delay);
 }
 
 .flag {
   position: absolute;
   z-index: 2;
+  left: clamp(12px, var(--x), calc(100% - 12px));
+  bottom: clamp(10px, var(--y), calc(100% - 32px));
   width: 14px;
   height: 18px;
   border-radius: 2px 8px 8px 2px;
@@ -100,8 +183,10 @@
 .climber {
   position: absolute;
   z-index: 3;
-  width: 72px;
-  transform: translate(-50%, 8px);
+  left: clamp(46px, var(--x), calc(100% - 46px));
+  bottom: clamp(4px, var(--y), calc(100% - 128px));
+  width: 88px;
+  transform: translate(-50%, 0);
   transition: left 600ms linear, bottom 600ms linear;
 }
 
@@ -156,6 +241,10 @@
   left: 0;
   height: var(--fill);
   background: var(--gold);
+}
+
+.meterDone span {
+  background: #3caf62;
 }
 
 .checkButton,
@@ -330,15 +419,36 @@
   border: 0;
 }
 
-@keyframes pop {
-  from { transform: scale(0.8); }
-  to { transform: scale(1); }
+@keyframes plantFlag {
+  from { transform: translate(-50%, 18px) scaleY(0.2); opacity: 0; }
+  to { transform: translate(-50%, 0) scaleY(1); opacity: 1; }
+}
+
+@keyframes wave {
+  from { transform: skewY(0deg); }
+  50% { transform: skewY(8deg); }
+  to { transform: skewY(0deg); }
+}
+
+@keyframes confettiFall {
+  to {
+    top: var(--rest);
+    transform: rotate(var(--tilt));
+    opacity: 1;
+  }
 }
 
 :global(html[data-motion="reduce"]) .climber,
-:global(html[data-motion="reduce"]) .celebrate {
+:global(html[data-motion="reduce"]) .summitPlant,
+:global(html[data-motion="reduce"]) .cloth,
+:global(html[data-motion="reduce"]) .confetti span {
   transition: none;
   animation: none;
+}
+
+:global(html[data-motion="reduce"]) .confetti span {
+  top: var(--rest);
+  opacity: 0.9;
 }
 
 @media (max-width: 720px) {

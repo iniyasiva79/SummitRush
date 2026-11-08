@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
 import {
   updateActiveAccount,
   useActiveAccount,
@@ -22,6 +22,7 @@ import {
   resumeTask,
   saveCheckpointSettings,
   startTask,
+  trailPath,
   trailPoint,
   validateDraft,
   workingMs,
@@ -45,6 +46,44 @@ import styles from "./ClimbScreen.module.css";
 type ClimbScreenProps = {
   mountainId: string;
 };
+
+const CONFETTI = [
+  { x: "6%", rest: "18%", delay: "0ms", color: "#f2c14e", tilt: "-18deg" },
+  { x: "14%", rest: "42%", delay: "80ms", color: "#3caf62", tilt: "24deg" },
+  { x: "22%", rest: "28%", delay: "40ms", color: "#ffffff", tilt: "12deg" },
+  { x: "31%", rest: "54%", delay: "140ms", color: "#2478a3", tilt: "-28deg" },
+  { x: "39%", rest: "22%", delay: "20ms", color: "#e07a3d", tilt: "16deg" },
+  { x: "47%", rest: "48%", delay: "110ms", color: "#f2c14e", tilt: "-8deg" },
+  { x: "55%", rest: "30%", delay: "60ms", color: "#d4537e", tilt: "30deg" },
+  { x: "63%", rest: "58%", delay: "160ms", color: "#3caf62", tilt: "-20deg" },
+  { x: "71%", rest: "24%", delay: "30ms", color: "#ffffff", tilt: "8deg" },
+  { x: "78%", rest: "46%", delay: "120ms", color: "#2478a3", tilt: "-14deg" },
+  { x: "86%", rest: "34%", delay: "70ms", color: "#f2c14e", tilt: "22deg" },
+  { x: "93%", rest: "52%", delay: "150ms", color: "#e07a3d", tilt: "-26deg" },
+  { x: "11%", rest: "64%", delay: "180ms", color: "#d4537e", tilt: "10deg" },
+  { x: "27%", rest: "70%", delay: "90ms", color: "#3caf62", tilt: "-16deg" },
+  { x: "44%", rest: "66%", delay: "200ms", color: "#ffffff", tilt: "18deg" },
+  { x: "61%", rest: "72%", delay: "50ms", color: "#f2c14e", tilt: "-6deg" },
+  { x: "76%", rest: "62%", delay: "170ms", color: "#2478a3", tilt: "26deg" },
+  { x: "89%", rest: "68%", delay: "100ms", color: "#e07a3d", tilt: "-22deg" },
+];
+
+function ClimbGate({ title, children }: { title: string; children?: ReactNode }) {
+  return (
+    <ScreenFrame>
+      <SummitBar />
+      <main className={styles.main}>
+        <section className={styles.panel}>
+          <GameButton className={styles.backLink} href="/mountains" variant="secondary">
+            Back
+          </GameButton>
+          <h1>{title}</h1>
+          {children}
+        </section>
+      </main>
+    </ScreenFrame>
+  );
+}
 
 const EMPTY_DRAFT: TaskDraft = {
   name: "",
@@ -78,61 +117,32 @@ export function ClimbScreen({ mountainId }: ClimbScreenProps) {
   const clock = now > 0 ? now : null;
 
   if (!mountain) {
-    return (
-      <ScreenFrame>
-        <SummitBar />
-        <main className={styles.main}>
-          <section className={styles.panel}>
-            <h1>Unknown mountain</h1>
-            <GameButton href="/mountains">Back to mountains</GameButton>
-          </section>
-        </main>
-      </ScreenFrame>
-    );
+    return <ClimbGate title="Unknown mountain" />;
   }
 
   if (!account) {
     return (
-      <ScreenFrame>
-        <SummitBar />
-        <main className={styles.main}>
-          <section className={styles.panel}>
-            <h1>{mountain.name}</h1>
-            <p>Sign in to save tasks, coins, and climbing progress on an account.</p>
-            <GameButton href="/login">Log in</GameButton>
-          </section>
-        </main>
-      </ScreenFrame>
+      <ClimbGate title={mountain.name}>
+        <p>Sign in to save tasks, coins, and climbing progress on an account.</p>
+        <GameButton href="/login">Log in</GameButton>
+      </ClimbGate>
     );
   }
 
   if (!account.avatarId || !avatarById(account.avatarId)) {
     return (
-      <ScreenFrame>
-        <SummitBar />
-        <main className={styles.main}>
-          <section className={styles.panel}>
-            <h1>{mountain.name}</h1>
-            <p>Choose an avatar before starting a climb.</p>
-            <GameButton href="/play">Choose avatar</GameButton>
-          </section>
-        </main>
-      </ScreenFrame>
+      <ClimbGate title={mountain.name}>
+        <p>Choose an avatar before starting a climb.</p>
+        <GameButton href="/play">Choose avatar</GameButton>
+      </ClimbGate>
     );
   }
 
   if (!unlocked) {
     return (
-      <ScreenFrame>
-        <SummitBar />
-        <main className={styles.main}>
-          <section className={styles.panel}>
-            <h1>{mountain.name} is locked</h1>
-            <p>This climb cannot be entered until the previous mountain is finished.</p>
-            <GameButton href="/mountains">Back to mountains</GameButton>
-          </section>
-        </main>
-      </ScreenFrame>
+      <ClimbGate title={`${mountain.name} is locked`}>
+        <p>This climb cannot be entered until the previous mountain is finished.</p>
+      </ClimbGate>
     );
   }
 
@@ -146,6 +156,9 @@ export function ClimbScreen({ mountainId }: ClimbScreenProps) {
   const fraction =
     done >= required ? 1 : Math.min(1, permanent + taskFraction * (1 / required));
   const avatarPoint = trailPoint(fraction);
+  const summit = trailPoint(1);
+  const complete = done >= required;
+  const route = trailPath();
   const next = MOUNTAINS[MOUNTAINS.findIndex((item) => item.id === mountain.id) + 1] ?? null;
   const percent = Math.round(Math.min(1, permanent) * 1000) / 10;
   const setupTask = tasks.find((task) => task.id === setupId) ?? visualTask ?? tasks.find((task) => task.status === "pending") ?? null;
@@ -239,23 +252,52 @@ export function ClimbScreen({ mountainId }: ClimbScreenProps) {
     });
   }
 
-  const trail = Array.from({ length: 21 }, (_, index) => {
-    const point = trailPoint(index / 20);
-    return `${point.x},${point.y}`;
-  }).join(" ");
-
   return (
     <ScreenFrame>
       <SummitBar />
       <main className={styles.main}>
         <div className={styles.layout}>
           <section className={styles.stage} aria-label={`${mountain.name} climb`}>
-            <Image src={mountain.src} alt="" fill priority sizes="(max-width: 720px) 100vw, 900px" />
+            <Image className={styles.photo} src={mountain.src} alt="" fill priority sizes="(max-width: 720px) 100vw, 900px" />
             <svg className={styles.trail} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-              <polyline points={trail} />
+              <path d={route} />
+              <path d={route} />
             </svg>
             <span className={styles.trailhead}>Trailhead</span>
-            <span className={`${styles.summitFlag} ${done >= required ? styles.celebrate : ""}`}>Summit</span>
+            {complete ? (
+              <span
+                className={styles.summitPlant}
+                style={{ ["--x" as string]: summit.left, ["--y" as string]: summit.bottom }}
+                role="img"
+                aria-label={`${mountain.name} summit flag`}
+              >
+                <span className={styles.pole} />
+                <span className={styles.cloth} />
+              </span>
+            ) : (
+              <span
+                className={styles.summitMark}
+                style={{ ["--x" as string]: summit.left, ["--y" as string]: summit.bottom }}
+              >
+                Summit
+              </span>
+            )}
+            {complete ? (
+              <div className={styles.confetti} aria-hidden="true">
+                {CONFETTI.map((piece) => (
+                  <span
+                    key={`${piece.x}-${piece.delay}`}
+                    style={{
+                      ["--x" as string]: piece.x,
+                      ["--rest" as string]: piece.rest,
+                      ["--delay" as string]: piece.delay,
+                      ["--color" as string]: piece.color,
+                      ["--tilt" as string]: piece.tilt,
+                    }}
+                  />
+                ))}
+              </div>
+            ) : null}
             {visualTask
               ? visualTask.checkpoints.map((checkpoint) => {
                   const point = trailPoint(
@@ -265,7 +307,7 @@ export function ClimbScreen({ mountainId }: ClimbScreenProps) {
                     <span
                       key={checkpoint.id}
                       className={`${styles.flag} ${checkpoint.state === "completed" ? styles.planted : ""} ${checkpoint.state === "skipped" ? styles.skippedFlag : ""}`}
-                      style={{ left: point.left, bottom: point.bottom }}
+                      style={{ ["--x" as string]: point.left, ["--y" as string]: point.bottom }}
                     >
                       <span className={styles.srOnly}>
                         Checkpoint at {formatDuration(checkpoint.atMs)} is {checkpoint.state}
@@ -274,7 +316,10 @@ export function ClimbScreen({ mountainId }: ClimbScreenProps) {
                   );
                 })
               : null}
-            <div className={styles.climber} style={{ left: avatarPoint.left, bottom: avatarPoint.bottom }}>
+            <div
+              className={styles.climber}
+              style={{ ["--x" as string]: avatarPoint.left, ["--y" as string]: avatarPoint.bottom }}
+            >
               <AvatarFigure
                 avatarId={account.avatarId}
                 equipped={account.equippedAccessories}
@@ -282,7 +327,11 @@ export function ClimbScreen({ mountainId }: ClimbScreenProps) {
               />
             </div>
             <div className={styles.stageCopy}>
+              <GameButton className={styles.backLink} href="/mountains" variant="secondary">
+                Back
+              </GameButton>
               <h1>{mountain.name}</h1>
+              {complete ? <p className={styles.completeBanner}>Mountain complete</p> : null}
               <p>
                 {done} of {required} tasks completed. {remaining} remaining. {percent}% of the mountain. Position: {fraction >= 1 ? "Summit" : fraction <= 0 ? "Trailhead" : "On the climbing trail"}.
               </p>
@@ -295,7 +344,7 @@ export function ClimbScreen({ mountainId }: ClimbScreenProps) {
           </section>
           <aside className={styles.meterWrap}>
             <div
-              className={styles.meter}
+              className={`${styles.meter} ${percent >= 100 ? styles.meterDone : ""}`}
               role="meter"
               aria-valuemin={0}
               aria-valuemax={100}
@@ -329,7 +378,7 @@ export function ClimbScreen({ mountainId }: ClimbScreenProps) {
             </button>
           </div>
           <p className={styles.help}>
-            Summit Coins are fictional and have no real-world value. One finished task moves this mountain forward. Checkpoint flags belong to the current task only.
+            One finished task moves this mountain forward. Checkpoint flags belong to the current task only.
           </p>
           {active && active.mountainId !== mountain.id ? (
             <p className={styles.help}>

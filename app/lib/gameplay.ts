@@ -131,10 +131,72 @@ export function workingMs(task: GameTask, now: number) {
   return task.accumulatedMs;
 }
 
+type TrailPoint = { x: number; y: number };
+
+const TRAIL_KNOTS: TrailPoint[] = [
+  { x: 42, y: 88 },
+  { x: 64, y: 80 },
+  { x: 31, y: 71 },
+  { x: 58, y: 61 },
+  { x: 27, y: 51 },
+  { x: 55, y: 41 },
+  { x: 38, y: 36 },
+  { x: 68, y: 31 },
+];
+
+function trailSegment(index: number) {
+  const p0 = TRAIL_KNOTS[Math.max(0, index - 1)];
+  const p1 = TRAIL_KNOTS[index];
+  const p2 = TRAIL_KNOTS[index + 1];
+  const p3 = TRAIL_KNOTS[Math.min(TRAIL_KNOTS.length - 1, index + 2)];
+  return {
+    p1,
+    p2,
+    c1: { x: p1.x + (p2.x - p0.x) / 6, y: p1.y + (p2.y - p0.y) / 6 },
+    c2: { x: p2.x - (p3.x - p1.x) / 6, y: p2.y - (p3.y - p1.y) / 6 },
+  };
+}
+
+function curvePoint(index: number, t: number): TrailPoint {
+  const { p1, c1, c2, p2 } = trailSegment(index);
+  const u = 1 - t;
+  return {
+    x: u * u * u * p1.x + 3 * u * u * t * c1.x + 3 * u * t * t * c2.x + t * t * t * p2.x,
+    y: u * u * u * p1.y + 3 * u * u * t * c1.y + 3 * u * t * t * c2.y + t * t * t * p2.y,
+  };
+}
+
+const TRAIL_SAMPLES: TrailPoint[] = (() => {
+  const samples: TrailPoint[] = [];
+  const steps = 16;
+  for (let index = 0; index < TRAIL_KNOTS.length - 1; index += 1) {
+    for (let step = 0; step < steps; step += 1) {
+      samples.push(curvePoint(index, step / steps));
+    }
+  }
+  samples.push(TRAIL_KNOTS[TRAIL_KNOTS.length - 1]);
+  return samples;
+})();
+
+function rounded(value: number) {
+  return Math.round(value * 10) / 10;
+}
+
+export function trailPath() {
+  const start = TRAIL_KNOTS[0];
+  let path = `M ${start.x} ${start.y}`;
+  for (let index = 0; index < TRAIL_KNOTS.length - 1; index += 1) {
+    const { c1, c2, p2 } = trailSegment(index);
+    path += ` C ${rounded(c1.x)} ${rounded(c1.y)} ${rounded(c2.x)} ${rounded(c2.y)} ${rounded(p2.x)} ${rounded(p2.y)}`;
+  }
+  return path;
+}
+
 export function trailPoint(fraction: number) {
   const t = Math.min(1, Math.max(0, fraction));
-  const x = 58 + Math.sin(t * Math.PI) * 12;
-  const y = 92 - t * 84;
+  const point = TRAIL_SAMPLES[Math.round(t * (TRAIL_SAMPLES.length - 1))];
+  const x = rounded(point.x);
+  const y = rounded(point.y);
   return { x, y, left: `${x}%`, bottom: `${100 - y}%` };
 }
 
