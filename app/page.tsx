@@ -1,4 +1,4 @@
-import { GameButton } from "./components/GameButton";
+import { HomeMenu } from "./components/HomeMenu";
 import { ScreenFrame } from "./components/ScreenFrame";
 import { SummitBar } from "./components/SummitBar";
 import styles from "./page.module.css";
@@ -14,18 +14,7 @@ export default function Home() {
             Bet on yourself. Conquer your goals. Reach the summit.
           </p>
         </header>
-        <div className={styles.menu}>
-          <GameButton href="/play" className={styles.menuButton}>
-            Play
-          </GameButton>
-          <GameButton
-            href="/room"
-            variant="secondary"
-            className={styles.menuButton}
-          >
-            Private Room
-          </GameButton>
-        </div>
+        <HomeMenu />
       </main>
     </ScreenFrame>
   );

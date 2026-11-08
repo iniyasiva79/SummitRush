@@ -1,18 +1,20 @@
 :root {
-  --forest: #1e6b45;
-  --forest-deep: #144a30;
-  --sky: #7ec8ea;
-  --ice: #d4f1fb;
-  --snow: #f4fbff;
-  --rock: #5e6a73;
-  --rock-ink: #243038;
-  --gold: #f0c14a;
-  --gold-deep: #c9951a;
-  --hazard: #e24b2a;
-  --hazard-deep: #b8321c;
-  --shadow: 4px 4px 0 var(--rock-ink);
-  --outline: 3px solid var(--rock-ink);
-  --radius: 16px;
+  --forest: #1f8f68;
+  --forest-deep: #146b4c;
+  --sky: #2bb7c9;
+  --ice: #e5f6fb;
+  --snow: #f7fbff;
+  --rock: #3e516c;
+  --rock-ink: #1c2c48;
+  --gold: #f2c14d;
+  --gold-deep: #d9921b;
+  --sunset: #f3a0c0;
+  --dusk: #6d5b9a;
+  --hazard: #d4533a;
+  --hazard-deep: #a83824;
+  --shadow: 0 12px 28px rgb(16 32 58 / 28%);
+  --outline: 2px solid rgb(255 255 255 / 62%);
+  --radius: 18px;
   --space: clamp(16px, 3vw, 28px);
 }
 
@@ -75,8 +77,8 @@ html[data-contrast="high"] {
   --rock-ink: #000000;
   --forest: #085c32;
   --forest-deep: #042818;
-  --outline: 4px solid #000000;
-  --shadow: 5px 5px 0 #000000;
+  --outline: 3px solid #000000;
+  --shadow: 0 0 0 3px #000000;
 }
 
 @media (prefers-reduced-motion: reduce) {

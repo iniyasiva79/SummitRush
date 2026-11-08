@@ -9,6 +9,7 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
+import { logout, useActiveAccount } from "../lib/accounts";
 import { useCoins } from "../lib/coins";
 import {
   DISPLAY_NAME_LIMIT,
@@ -33,6 +34,7 @@ type SummitBarProps = {
 
 export function SummitBar({ themeLinks = [] }: SummitBarProps) {
   const savedName = useDisplayName();
+  const account = useActiveAccount();
   const coins = useCoins();
   const [draft, setDraft] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
@@ -107,9 +109,20 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
   return (
     <div className={styles.wrap}>
       <header className={styles.bar}>
-        <Link className={styles.logo} href="/">
-          SummitRush
-        </Link>
+        <button
+          ref={gearRef}
+          type="button"
+          className={styles.iconButton}
+          aria-expanded={settingsOpen}
+          aria-controls="accessibility-panel"
+          onClick={() => {
+            setSettingsOpen((open) => !open);
+            setInfoOpen(false);
+          }}
+        >
+          <GearIcon />
+          <span className={styles.srOnly}>Accessibility settings</span>
+        </button>
         <div className={styles.tools}>
           <p className={styles.coins}>
             <CoinIcon />
@@ -128,20 +141,6 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
           >
             <AvatarIcon />
           </Link>
-          <button
-            ref={gearRef}
-            type="button"
-            className={styles.iconButton}
-            aria-expanded={settingsOpen}
-            aria-controls="accessibility-panel"
-            onClick={() => {
-              setSettingsOpen((open) => !open);
-              setInfoOpen(false);
-            }}
-          >
-            <GearIcon />
-            <span className={styles.srOnly}>Accessibility settings</span>
-          </button>
           <div className={styles.menuStack}>
             <button
               ref={menuRef}
@@ -176,6 +175,11 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
               <button type="submit" className={styles.save}>
                 Save
               </button>
+              {account ? (
+                <button type="button" className={styles.save} onClick={logout}>
+                  Log out
+                </button>
+              ) : null}
             </form>
           </div>
         </div>
@@ -226,17 +230,57 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
           </InfoSection>
           <InfoSection title="Progress tracking">
             <ul>
-              <li>Completed tasks: none yet.</li>
-              <li>Mountain progress: not started.</li>
-              <li>Checkpoints: none yet.</li>
-              <li>Achievements: none yet.</li>
+              <li>
+                Completed tasks:{" "}
+                {account && account.progress.completedTasks > 0
+                  ? account.progress.completedTasks
+                  : "none yet."}
+              </li>
+              <li>
+                Mountain progress:{" "}
+                {account?.progress.mountainId ?? "not started."}
+              </li>
+              <li>
+                Checkpoints:{" "}
+                {account && account.progress.checkpoints > 0
+                  ? account.progress.checkpoints
+                  : "none yet."}
+              </li>
+              <li>
+                Achievements:{" "}
+                {account && account.progress.achievements.length > 0
+                  ? account.progress.achievements.join(", ")
+                  : "none yet."}
+              </li>
             </ul>
+            <p>
+              {account
+                ? "This record is saved with the signed-in account."
+                : "Sign in to keep this record with an account."}
+            </p>
           </InfoSection>
           <InfoSection title="Wins and losses">
             <ul>
-              <li>Successful time predictions: none yet.</li>
-              <li>Unsuccessful time predictions: none yet.</li>
-              <li>Virtual coin betting results: none yet.</li>
+              <li>
+                Successful time predictions:{" "}
+                {account && account.progress.successfulPredictions > 0
+                  ? account.progress.successfulPredictions
+                  : "none yet."}
+              </li>
+              <li>
+                Unsuccessful time predictions:{" "}
+                {account && account.progress.unsuccessfulPredictions > 0
+                  ? account.progress.unsuccessfulPredictions
+                  : "none yet."}
+              </li>
+              <li>
+                Virtual coin betting results:{" "}
+                {account &&
+                (account.progress.bettingWins > 0 ||
+                  account.progress.bettingLosses > 0)
+                  ? `${account.progress.bettingWins} wins, ${account.progress.bettingLosses} losses`
+                  : "none yet."}
+              </li>
             </ul>
           </InfoSection>
           {themeLinks.length > 0 ? (
@@ -259,7 +303,7 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
         <div
           ref={settingsPanelRef}
           id="accessibility-panel"
-          className={styles.panel}
+          className={`${styles.panel} ${styles.panelLeft}`}
           role="region"
           aria-labelledby={settingsTitleId}
         >

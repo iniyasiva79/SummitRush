@@ -1,0 +1,63 @@
+.main {
+  width: min(560px, 100%);
+  margin: 12px auto 0;
+}
+
+.form {
+  display: grid;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field span {
+  font-weight: 800;
+  color: var(--rock-ink);
+}
+
+.field input {
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 2px solid var(--rock-ink);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--rock-ink);
+  font: inherit;
+}
+
+.field input[aria-invalid="true"] {
+  border-color: var(--hazard-deep);
+}
+
+.error {
+  margin: 0;
+  color: var(--hazard-deep);
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.hint,
+.note {
+  margin: 0;
+  color: var(--rock);
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.confirm {
+  display: grid;
+  gap: 12px;
+}
+
+.confirm h2 {
+  margin: 0;
+}

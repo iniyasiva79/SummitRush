@@ -18,17 +18,17 @@
 }
 
 .button:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 6px 6px 0 var(--rock-ink);
+  transform: translateY(-1px);
+  box-shadow: 0 16px 30px rgb(16 32 58 / 34%);
 }
 
 .button:active {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 var(--rock-ink);
+  transform: translateY(1px);
+  box-shadow: 0 6px 14px rgb(16 32 58 / 24%);
 }
 
 .primary {
-  background: var(--forest);
+  background: linear-gradient(180deg, #2ea87a, var(--forest-deep));
   color: var(--snow);
 }
 
@@ -57,6 +57,12 @@
 
 .hazard:hover {
   background: var(--hazard-deep);
+}
+
+:global(html[data-motion="reduce"]) .button:hover,
+:global(html[data-motion="reduce"]) .button:active {
+  transform: none;
+  box-shadow: var(--shadow);
 }
 
 @media (prefers-reduced-motion: reduce) {

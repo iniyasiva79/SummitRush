@@ -1,7 +1,9 @@
 import { useSyncExternalStore } from "react";
+import { readActiveAccount, updateActiveAccount } from "./accounts";
+import { STARTING_COINS } from "./constants";
 
 export const COINS_KEY = "summitrush.coins";
-export const STARTING_COINS = 1000;
+export { STARTING_COINS };
 
 const CHANGE_EVENT = "summitrush-coins";
 
@@ -9,6 +11,10 @@ let snapshot = STARTING_COINS;
 
 function readCoins(): number {
   try {
+    const active = readActiveAccount();
+    if (active) {
+      return active.coins;
+    }
     const raw = localStorage.getItem(COINS_KEY);
     if (raw === null) {
       localStorage.setItem(COINS_KEY, String(STARTING_COINS));
@@ -30,10 +36,12 @@ function subscribe(onStoreChange: () => void) {
     onStoreChange();
   };
   window.addEventListener(CHANGE_EVENT, handleChange);
+  window.addEventListener("summitrush-account", handleChange);
   window.addEventListener("storage", handleChange);
   snapshot = readCoins();
   return () => {
     window.removeEventListener(CHANGE_EVENT, handleChange);
+    window.removeEventListener("summitrush-account", handleChange);
     window.removeEventListener("storage", handleChange);
   };
 }
@@ -44,6 +52,11 @@ export function useCoins() {
 
 export function updateCoins(next: number) {
   const value = Math.max(0, Math.floor(next));
+  if (readActiveAccount()) {
+    updateActiveAccount({ coins: value });
+    snapshot = value;
+    return;
+  }
   try {
     localStorage.setItem(COINS_KEY, String(value));
   } catch {
