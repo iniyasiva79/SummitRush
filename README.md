@@ -1,1 +1,1 @@
-# CrownHacks26
+# SummitRush
