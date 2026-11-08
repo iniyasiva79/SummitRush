@@ -4,13 +4,14 @@
 }
 
 .hero {
-  margin: 12px 0 24px;
+  margin: 12px 0 clamp(150px, 26vh, 250px);
   text-align: center;
 }
 
 .kicker {
   margin: 0 0 8px;
   color: var(--forest-deep);
+  text-shadow: 0 0 8px var(--snow);
   font-size: 0.85rem;
   font-weight: 800;
   letter-spacing: 0.16em;
@@ -30,6 +31,7 @@
   color: var(--rock-ink);
   font-size: clamp(1.05rem, 2.4vw, 1.3rem);
   font-weight: 700;
+  text-shadow: 0 1px 0 var(--snow);
 }
 
 .grid {

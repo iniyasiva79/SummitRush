@@ -1,7 +1,9 @@
 .frame {
   min-height: 100vh;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
   padding: var(--space);
-  background:
-    radial-gradient(circle at 15% 0%, rgb(255 255 255 / 80%), transparent 36%),
-    linear-gradient(180deg, var(--sky) 0%, var(--ice) 52%, #d7efdf 100%);
 }

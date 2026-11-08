@@ -1,0 +1,134 @@
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 0%, rgb(255 255 255 / 80%), transparent 24%),
+    radial-gradient(circle at 82% 6%, rgb(240 193 74 / 40%), transparent 22%),
+    linear-gradient(180deg, #9fd6f2 0%, var(--sky) 34%, var(--ice) 70%);
+}
+
+.land {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.haze {
+  fill: #c5e4f4;
+}
+
+.forest {
+  fill: #2f8a5a;
+  stroke: var(--rock-ink);
+  stroke-width: 7;
+  stroke-linejoin: round;
+}
+
+.scoria {
+  fill: #8ea0ad;
+  stroke: var(--rock-ink);
+  stroke-width: 7;
+  stroke-linejoin: round;
+}
+
+.forestShade {
+  fill: var(--forest-deep);
+}
+
+.snow {
+  fill: var(--snow);
+  stroke: var(--rock-ink);
+  stroke-width: 7;
+  stroke-linejoin: round;
+}
+
+.gully,
+.gullySoft,
+.reflection,
+.blossom path {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.gully {
+  stroke: #9eb0bc;
+  stroke-width: 10;
+}
+
+.gullySoft {
+  stroke: #c5d3dc;
+  stroke-width: 7;
+}
+
+.shore {
+  fill: #8ea48b;
+}
+
+.lake {
+  fill: #3f92c4;
+}
+
+.reflection {
+  stroke: rgb(244 251 255 / 70%);
+  stroke-width: 8;
+}
+
+.blossom path {
+  stroke: var(--rock-ink);
+  stroke-width: 5;
+}
+
+.blossom circle {
+  fill: #f4c3d2;
+  stroke: var(--rock-ink);
+  stroke-width: 4;
+}
+
+.light {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 45%, rgb(36 48 56 / 10%) 100%);
+}
+
+.cloudFar,
+.cloudNear {
+  fill: var(--snow);
+  stroke: var(--rock-ink);
+  stroke-width: 5;
+}
+
+.cloudFar {
+  animation: drift 48s ease-in-out infinite alternate;
+}
+
+.cloudNear {
+  animation: drift 34s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(-18px, 0, 0);
+  }
+
+  to {
+    transform: translate3d(18px, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cloudFar,
+  .cloudNear {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .cloudFar,
+  .cloudNear {
+    stroke-width: 4;
+  }
+}
