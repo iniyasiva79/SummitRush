@@ -1,0 +1,56 @@
+.main {
+  width: min(1040px, 100%);
+  margin: 0 auto;
+}
+
+.hero {
+  margin: 12px 0 24px;
+  text-align: center;
+}
+
+.kicker {
+  margin: 0 0 8px;
+  color: var(--forest-deep);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  margin: 0;
+  color: var(--rock-ink);
+  font-size: clamp(3rem, 10vw, 6rem);
+  text-shadow: 3px 3px 0 var(--snow);
+}
+
+.tagline {
+  max-width: 34rem;
+  margin: 12px auto 0;
+  color: var(--rock-ink);
+  font-size: clamp(1.05rem, 2.4vw, 1.3rem);
+  font-weight: 700;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+@media (max-width: 800px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions > * {
+    flex: 1 1 100%;
+  }
+}

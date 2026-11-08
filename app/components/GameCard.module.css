@@ -1,0 +1,31 @@
+.card {
+  scroll-margin-top: 96px;
+  padding: clamp(16px, 3vw, 24px);
+  border: var(--outline);
+  border-radius: var(--radius);
+  background: var(--snow);
+  box-shadow: var(--shadow);
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: var(--forest-deep);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.card h2 {
+  margin: 0 0 12px;
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+}
+
+.body {
+  color: var(--rock);
+  font-size: 1.05rem;
+}
+
+.body p {
+  margin: 0;
+}

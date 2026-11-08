@@ -1,0 +1,67 @@
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  width: min(1040px, 100%);
+  margin: 0 auto 20px;
+  padding: 12px 14px;
+  border: var(--outline);
+  border-radius: 999px;
+  background: var(--snow);
+  box-shadow: var(--shadow);
+}
+
+.brand {
+  padding: 4px 8px;
+  color: var(--forest-deep);
+  font-family: var(--font-display), "Lilita One", "Trebuchet MS", sans-serif;
+  font-size: 1.45rem;
+  text-decoration: none;
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 6px 14px;
+  border: 2px solid var(--rock-ink);
+  border-radius: 999px;
+  background: var(--ice);
+  color: var(--rock-ink);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.link:hover {
+  background: var(--gold);
+}
+
+@media (max-width: 640px) {
+  .bar {
+    border-radius: 24px;
+  }
+
+  .list {
+    width: 100%;
+  }
+
+  .list li {
+    flex: 1 1 30%;
+  }
+
+  .link {
+    justify-content: center;
+    width: 100%;
+  }
+}

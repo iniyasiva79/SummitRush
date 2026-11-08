@@ -1,45 +1,66 @@
 :root {
-  --background: #e7f2fb;
-  --foreground: #1c2830;
+  --forest: #1e6b45;
+  --forest-deep: #144a30;
+  --sky: #7ec8ea;
+  --ice: #d4f1fb;
+  --snow: #f4fbff;
+  --rock: #5e6a73;
+  --rock-ink: #243038;
+  --gold: #f0c14a;
+  --gold-deep: #c9951a;
+  --hazard: #e24b2a;
+  --hazard-deep: #b8321c;
+  --shadow: 4px 4px 0 var(--rock-ink);
+  --outline: 3px solid var(--rock-ink);
+  --radius: 16px;
+  --space: clamp(16px, 3vw, 28px);
 }
 
 html,
 body {
-  max-width: 100vw;
   margin: 0;
   padding: 0;
+  max-width: 100%;
 }
 
 body {
   min-height: 100vh;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  color: var(--rock-ink);
+  font-family: var(--font-body), "Nunito", "Trebuchet MS", sans-serif;
+  background: var(--ice);
 }
 
 * {
   box-sizing: border-box;
 }
 
-main {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 24px;
+h1,
+h2,
+h3 {
+  font-family: var(--font-display), "Lilita One", "Trebuchet MS", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.05;
 }
 
-h1 {
-  margin: 0;
-  font-size: clamp(2.5rem, 8vw, 4.5rem);
-  line-height: 1;
-}
-
-.tagline {
-  margin: 16px 0 0;
-  max-width: 28rem;
-  font-size: 1.125rem;
+p {
   line-height: 1.5;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--gold-deep);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
 }
