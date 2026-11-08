@@ -222,7 +222,7 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
               <li>Perfect Pace: +25 coins for a very close time prediction.</li>
               <li>Underdog: +50 coins for improving on a difficult task.</li>
               <li>Comeback Climber: +30 coins for finishing after the prediction.</li>
-              <li>Checkpoint: +10 coins. Summit: +200 coins. Team climb: +100 coins.</li>
+              <li>Checkpoint: +10 coins. Summit: +200 coins.</li>
             </ul>
             <ul>
               <li>Perfect Pace bonuses: {account?.progress.perfectPace ?? 0}</li>

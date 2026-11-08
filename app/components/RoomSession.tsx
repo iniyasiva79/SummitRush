@@ -6,14 +6,11 @@ import { useEffect, useId, useState } from "react";
 import { useActiveAccount } from "../lib/accounts";
 import { trailPath, trailPoint } from "../lib/gameplay";
 import { MOUNTAINS } from "../lib/mountains";
-import type { PublicRoom, RoomMode } from "../lib/multiplayer";
-import { TEAM_CLIMB_COINS } from "../lib/multiplayer";
+import type { PublicRoom } from "../lib/multiplayer";
 import { clearRoomSession, fetchRoom, roomAction } from "../lib/room-client";
-import { useSettings } from "../lib/settings";
 import { AvatarFigure } from "./AvatarFigure";
 import { GameButton } from "./GameButton";
 import { GameCard } from "./GameCard";
-import { GameOverlay } from "./GameOverlay";
 import { ScreenFrame } from "./ScreenFrame";
 import { SummitBar } from "./SummitBar";
 import climb from "./ClimbScreen.module.css";
@@ -25,17 +22,74 @@ type RoomSessionProps = {
   autoJoin?: boolean;
 };
 
+const CONFETTI = [
+  { x: "6%", rest: "18%", delay: "0ms", color: "#f2c14e", tilt: "-18deg" },
+  { x: "14%", rest: "42%", delay: "80ms", color: "#3caf62", tilt: "24deg" },
+  { x: "22%", rest: "28%", delay: "40ms", color: "#ffffff", tilt: "12deg" },
+  { x: "31%", rest: "54%", delay: "140ms", color: "#2478a3", tilt: "-28deg" },
+  { x: "39%", rest: "22%", delay: "20ms", color: "#e07a3d", tilt: "16deg" },
+  { x: "47%", rest: "48%", delay: "110ms", color: "#f2c14e", tilt: "-8deg" },
+  { x: "55%", rest: "30%", delay: "60ms", color: "#d4537e", tilt: "30deg" },
+  { x: "63%", rest: "58%", delay: "160ms", color: "#3caf62", tilt: "-20deg" },
+  { x: "71%", rest: "24%", delay: "30ms", color: "#ffffff", tilt: "8deg" },
+  { x: "78%", rest: "46%", delay: "120ms", color: "#2478a3", tilt: "-14deg" },
+  { x: "86%", rest: "34%", delay: "70ms", color: "#f2c14e", tilt: "22deg" },
+  { x: "93%", rest: "52%", delay: "150ms", color: "#e07a3d", tilt: "-26deg" },
+  { x: "11%", rest: "64%", delay: "180ms", color: "#d4537e", tilt: "10deg" },
+  { x: "27%", rest: "70%", delay: "90ms", color: "#3caf62", tilt: "-16deg" },
+  { x: "44%", rest: "66%", delay: "200ms", color: "#ffffff", tilt: "18deg" },
+  { x: "61%", rest: "72%", delay: "50ms", color: "#f2c14e", tilt: "-6deg" },
+  { x: "76%", rest: "62%", delay: "170ms", color: "#2478a3", tilt: "26deg" },
+  { x: "89%", rest: "68%", delay: "100ms", color: "#e07a3d", tilt: "-22deg" },
+];
+
+const SUMMIT_KEY_PREFIX = "summitrush.summit.";
+const animatedThisTab = new Map<string, Set<string>>();
+
+function summitStorageKey(code: string) {
+  return `${SUMMIT_KEY_PREFIX}${code}`;
+}
+
+function readCelebratedIds(code: string) {
+  try {
+    const parsed = JSON.parse(sessionStorage.getItem(summitStorageKey(code)) ?? "[]") as unknown;
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeCelebratedIds(code: string, ids: string[]) {
+  sessionStorage.setItem(summitStorageKey(code), JSON.stringify(ids));
+}
+
+function shouldPlaySummitAnimation(code: string, ids: string[]) {
+  if (ids.length === 0) {
+    return false;
+  }
+  const tab = animatedThisTab.get(code) ?? new Set<string>();
+  const stored = readCelebratedIds(code);
+  const unseen = ids.filter((id) => !stored.includes(id));
+  if (unseen.length > 0) {
+    for (const id of unseen) {
+      tab.add(id);
+    }
+    animatedThisTab.set(code, tab);
+    writeCelebratedIds(code, [...new Set([...stored, ...ids])]);
+    return true;
+  }
+  return ids.some((id) => tab.has(id));
+}
+
 export function RoomSession({ code, autoJoin = false }: RoomSessionProps) {
   const account = useActiveAccount();
-  const settings = useSettings();
   const router = useRouter();
   const titleId = useId();
   const [room, setRoom] = useState<PublicRoom | null>(null);
   const [notice, setNotice] = useState("");
   const [taskName, setTaskName] = useState("");
   const [minutes, setMinutes] = useState(25);
-  const [stake, setStake] = useState(0);
-  const [wagers, setWagers] = useState<Record<string, { minutes: number; amount: number }>>({});
+  const [wagers, setWagers] = useState<Record<string, number>>({});
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -159,39 +213,37 @@ export function RoomSession({ code, autoJoin = false }: RoomSessionProps) {
             titleId={titleId}
             taskName={taskName}
             minutes={minutes}
-            stake={stake}
             wagers={wagers}
-            noStakes={settings.noStakes}
             showWagers={showWagers}
             canStartTask={Boolean(canStartTask)}
             onTaskName={setTaskName}
             onMinutes={setMinutes}
-            onStake={setStake}
-            onWager={(id, field, value) =>
+            onWager={(id, value) =>
               setWagers((current) => ({
                 ...current,
-                [id]: {
-                  minutes: field === "minutes" ? value : current[id]?.minutes ?? 25,
-                  amount: field === "amount" ? value : current[id]?.amount ?? 0,
-                },
+                [id]: value,
               }))
             }
             onSubmitTask={() =>
               act("submitTask", {
                 name: taskName,
                 predictedMinutes: minutes,
-                stake: settings.noStakes ? 0 : stake,
               })
             }
-            onPlaceWagers={() =>
-              act("placeWagers", {
+            onPlaceWagers={() => {
+              const total = others.reduce((sum, item) => sum + (wagers[item.id] ?? 0), 0);
+              if (you && total > you.wallet) {
+                setNotice("Those wagers cost more Summit Coins than you have.");
+                return;
+              }
+              return act("placeWagers", {
                 wagers: others.map((item) => ({
                   targetId: item.id,
-                  predictedMinutes: wagers[item.id]?.minutes ?? 25,
-                  amount: settings.noStakes ? 0 : wagers[item.id]?.amount ?? 0,
+                  predictedMinutes: item.predictedMinutes ?? 0,
+                  amount: wagers[item.id] ?? 0,
                 })),
-              })
-            }
+              });
+            }}
             onStartTask={() => act("startTask")}
             onPause={() => act("pauseTask")}
             onResume={() => act("resumeTask")}
@@ -233,7 +285,7 @@ function Lobby({
   return (
     <>
       <header className={styles.head}>
-        <p className={styles.kicker}>{room.mode === "team" ? "Team climb" : "Summit Showdown"}</p>
+        <p className={styles.kicker}>Summit Showdown</p>
         <h1>{room.name}</h1>
         <p>
           Room code <strong>{room.code}</strong> · {seated.length}/{room.maxPlayers} climbers · {room.mountainName}
@@ -247,13 +299,6 @@ function Lobby({
       </div>
       {isHost ? (
         <div className={styles.hostRow}>
-          <label>
-            Mode
-            <select value={room.mode} onChange={(event) => onConfigure({ mode: event.target.value as RoomMode })}>
-              <option value="showdown">Summit Showdown</option>
-              <option value="team">Team climb</option>
-            </select>
-          </label>
           <label>
             Mountain
             <select value={room.mountainId} onChange={(event) => onConfigure({ mountainId: event.target.value })}>
@@ -309,14 +354,11 @@ function Climb({
   titleId,
   taskName,
   minutes,
-  stake,
   wagers,
-  noStakes,
   showWagers,
   canStartTask,
   onTaskName,
   onMinutes,
-  onStake,
   onWager,
   onSubmitTask,
   onPlaceWagers,
@@ -330,15 +372,12 @@ function Climb({
   titleId: string;
   taskName: string;
   minutes: number;
-  stake: number;
-  wagers: Record<string, { minutes: number; amount: number }>;
-  noStakes: boolean;
+  wagers: Record<string, number>;
   showWagers: boolean;
   canStartTask: boolean;
   onTaskName: (value: string) => void;
   onMinutes: (value: number) => void;
-  onStake: (value: number) => void;
-  onWager: (id: string, field: "minutes" | "amount", value: number) => void;
+  onWager: (id: string, value: number) => void;
   onSubmitTask: () => void;
   onPlaceWagers: () => void;
   onStartTask: () => void;
@@ -354,6 +393,8 @@ function Climb({
   const route = trailPath();
   const summit = trailPoint(1);
   const complete = room.phase === "finished";
+  const finishers = seated.filter((item) => item.finished);
+  const celebration = summitCelebration(room.code, finishers);
 
   return (
     <>
@@ -367,10 +408,12 @@ function Climb({
             <path d={route} />
           </svg>
           <span className={climb.trailhead}>Trailhead</span>
-          {complete ? (
+          {celebration.planted ? (
             <span
-              className={climb.summitPlant}
+              className={`${climb.summitPlant} ${celebration.animate ? "" : styles.summitPlantSettled}`}
               style={{ ["--x" as string]: summit.left, ["--y" as string]: summit.bottom }}
+              role="img"
+              aria-label={`${celebration.names.join(", ")} planted a summit flag`}
             >
               <span className={climb.pole} />
               <span className={climb.cloth} />
@@ -383,20 +426,33 @@ function Climb({
               Summit
             </span>
           )}
-          {complete ? (
-            <div className={climb.confetti} aria-hidden="true">
-              {Array.from({ length: 12 }, (_, index) => (
+          {celebration.planted ? (
+            <div
+              className={`${climb.confetti} ${celebration.animate ? "" : styles.confettiSettled}`}
+              aria-hidden="true"
+            >
+              {CONFETTI.map((piece) => (
                 <span
-                  key={index}
+                  key={`${piece.x}-${piece.delay}`}
                   style={{
-                    ["--x" as string]: `${8 + index * 7}%`,
-                    ["--rest" as string]: `${20 + (index % 5) * 10}%`,
-                    ["--delay" as string]: `${index * 40}ms`,
-                    ["--color" as string]: index % 2 === 0 ? "#f2c14e" : "#2478a3",
-                    ["--tilt" as string]: `${index % 2 === 0 ? -18 : 16}deg`,
+                    ["--x" as string]: piece.x,
+                    ["--rest" as string]: piece.rest,
+                    ["--delay" as string]: piece.delay,
+                    ["--color" as string]: piece.color,
+                    ["--tilt" as string]: piece.tilt,
                   }}
                 />
               ))}
+            </div>
+          ) : null}
+          {celebration.planted ? (
+            <div className={styles.summitReached} role="status">
+              <p>SUMMIT REACHED!</p>
+              <span>
+                {celebration.names.length === 1
+                  ? `${celebration.names[0]} reached the summit.`
+                  : `${celebration.names.join(", ")} reached the summit.`}
+              </span>
             </div>
           ) : null}
           {seated.map((member, index) => {
@@ -426,9 +482,7 @@ function Climb({
           <div className={climb.stageCopy}>
             <h1>{room.mountainName}</h1>
             <p>
-              {room.mode === "team"
-                ? `Team ${room.teamCompletions}/${room.teamGoal} tasks. +${TEAM_CLIMB_COINS} each at the summit.`
-                : "Summit Showdown — each climber works their own task. Rankings use completion and prediction accuracy."}
+              Summit Showdown — each climber works their own task. Rankings use completion and prediction accuracy.
             </p>
             {room.leaderboard[0] ? <p>Ahead: {room.leaderboard[0].username}</p> : null}
           </div>
@@ -460,7 +514,7 @@ function Climb({
           >
             <h2>Your task</h2>
             <p>
-              Other climbers see your progress, not this task name. Then you predict their times and wager Summit Coins.
+              Other climbers see your predicted time and progress, not this task name. After you lock in, you can wager Summit Coins on other players.
             </p>
             <label className={form.field}>
               <span>Task name</span>
@@ -477,16 +531,6 @@ function Climb({
                 required
               />
             </label>
-            <label className={form.field}>
-              <span>Stake on yourself</span>
-              <input
-                type="number"
-                min={0}
-                value={noStakes ? 0 : stake}
-                onChange={(event) => onStake(Number(event.target.value))}
-                disabled={noStakes}
-              />
-            </label>
             <GameButton type="submit">Lock in task</GameButton>
           </form>
         ) : null}
@@ -501,35 +545,51 @@ function Climb({
           >
             <h2>Bet on other climbers</h2>
             <p>
-              Predict each player&apos;s time. If they finish within your prediction, your wager is returned plus a matching reward. If they finish late, the wager is lost.
+              Wager Summit Coins on another player&apos;s finish. If they complete within their predicted time, your wager is returned plus a matching reward. If they finish late, the wager is lost. You cannot bet on yourself.
             </p>
+            {you ? <p>Available: {you.wallet.toLocaleString("en-US")} Summit Coins.</p> : null}
             {room.members.filter((item) => !item.you && !item.left).map((member) => (
               <fieldset key={member.id} className={styles.wager}>
                 <legend>{member.username}</legend>
-                <label>
-                  Predicted minutes
-                  <input
-                    type="number"
-                    min={1}
-                    max={240}
-                    value={wagers[member.id]?.minutes ?? 25}
-                    onChange={(event) => onWager(member.id, "minutes", Number(event.target.value))}
-                  />
-                </label>
+                <p>
+                  Predicted time:{" "}
+                  {member.predictedMinutes != null
+                    ? `${member.predictedMinutes} min`
+                    : "Waiting for their lock-in"}
+                </p>
                 <label>
                   Wager
                   <input
                     type="number"
                     min={0}
-                    value={noStakes ? 0 : wagers[member.id]?.amount ?? 0}
-                    disabled={noStakes}
-                    onChange={(event) => onWager(member.id, "amount", Number(event.target.value))}
+                    max={you?.wallet ?? 0}
+                    value={wagers[member.id] ?? 0}
+                    onChange={(event) => onWager(member.id, Number(event.target.value))}
                   />
                 </label>
               </fieldset>
             ))}
             <GameButton type="submit" variant="gold">Lock in wagers</GameButton>
           </form>
+        ) : null}
+
+        {you?.wagersLocked && you.wagers.length > 0 ? (
+          <div className={styles.wagerRecap}>
+            <h2>Your wagers</h2>
+            <ul>
+              {you.wagers.map((wager) => (
+                <li key={wager.targetId}>
+                  {wager.username}: {wager.amount.toLocaleString("en-US")} Summit Coins
+                  {wager.predictedMinutes > 0 ? ` · ${wager.predictedMinutes} min prediction` : ""}
+                  {wager.settled
+                    ? wager.won
+                      ? " · won"
+                      : " · lost"
+                    : ""}
+                </li>
+              ))}
+            </ul>
+          </div>
         ) : null}
 
         {canStartTask ? (
@@ -564,30 +624,30 @@ function Climb({
           </p>
         ) : null}
 
+        {complete ? (
+          <div>
+            <h2 id={titleId}>Showdown complete</h2>
+            <p>Every climber has finished. Rankings use completion and prediction accuracy, not raw speed.</p>
+          </div>
+        ) : null}
+
         <GameButton type="button" variant="secondary" onClick={onLeave}>Leave room</GameButton>
       </div>
-
-      {complete ? (
-        <GameOverlay labelledBy={titleId} size="card">
-          <h2 id={titleId}>{room.mode === "team" ? "Team summit" : "Showdown complete"}</h2>
-          <p>
-            {room.mode === "team"
-              ? `The team reached the summit. Each climber received ${TEAM_CLIMB_COINS} Summit Coins.`
-              : "Every climber has finished. Rankings use completion and prediction accuracy, not raw speed."}
-          </p>
-          <ol className={styles.ranks}>
-            {room.leaderboard.map((member, index) => (
-              <li key={member.id}>
-                {index + 1}. {member.username}
-                {member.success ? " · on time" : member.finished ? " · late" : ""}
-              </li>
-            ))}
-          </ol>
-          <GameButton href="/room">Back to rooms</GameButton>
-        </GameOverlay>
-      ) : null}
     </>
   );
+}
+
+function summitCelebration(code: string, finishers: { id: string; username: string }[]) {
+  const planted = finishers.length > 0;
+  const names = finishers.map((item) => item.username);
+  const animate =
+    planted && typeof window !== "undefined"
+      ? shouldPlaySummitAnimation(
+          code,
+          finishers.map((item) => item.id),
+        )
+      : false;
+  return { planted, animate, names };
 }
 
 function formatClock(ms: number) {

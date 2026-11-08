@@ -98,7 +98,6 @@ async function saveRoom(room: RoomState) {
 export async function createStoredRoom(input: {
   name: string;
   maxPlayers: number;
-  mode: "showdown" | "team";
   mountainId: MountainId;
   host: {
     id: string;
@@ -152,7 +151,7 @@ export async function createStoredRoom(input: {
       name,
       hostId: host.id,
       maxPlayers: input.maxPlayers,
-      mode: input.mode,
+      mode: "showdown",
       mountainId: input.mountainId,
       phase: "lobby",
       createdAt: now,

@@ -166,8 +166,71 @@
   font-weight: 800;
 }
 
+.wager p,
+.wagerRecap p,
+.wagerRecap ul {
+  margin: 0;
+}
+
+.wagerRecap ul {
+  padding-left: 1.1rem;
+}
+
+.summitPlantSettled {
+  animation: none;
+}
+
+.confettiSettled span {
+  animation: none;
+  top: var(--rest);
+  opacity: 0.9;
+}
+
+.summitReached {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  top: 10%;
+  transform: translateX(-50%);
+  width: min(92%, 340px);
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: rgb(16 36 58 / 84%);
+  color: #fff;
+  text-align: center;
+  text-shadow: none;
+  pointer-events: none;
+}
+
+.summitReached p,
+.summitReached span {
+  margin: 0;
+}
+
+.summitReached p {
+  font-size: clamp(1.05rem, 3vw, 1.4rem);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.summitReached span {
+  display: block;
+  margin-top: 4px;
+  font-weight: 700;
+}
+
+:global(html[data-motion="reduce"]) .summitPlantSettled,
+:global(html[data-motion="reduce"]) .confettiSettled span {
+  animation: none;
+}
+
 @media (max-width: 720px) {
   .grid {
     grid-template-columns: 1fr;
+  }
+
+  .summitReached {
+    top: 6%;
+    width: min(96%, 280px);
   }
 }

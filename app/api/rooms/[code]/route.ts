@@ -94,7 +94,6 @@ function toAction(
       type: "configure",
       name: typeof body.name === "string" ? body.name : undefined,
       maxPlayers: typeof body.maxPlayers === "number" ? body.maxPlayers : undefined,
-      mode: body.mode === "team" || body.mode === "showdown" ? body.mode : undefined,
       mountainId: isMountainId(body.mountainId) ? body.mountainId : undefined,
     };
   }
@@ -106,7 +105,6 @@ function toAction(
       type: "submitTask",
       name: String(body.name ?? ""),
       predictedMinutes: Number(body.predictedMinutes),
-      stake: Number(body.stake),
     };
   }
   if (action === "placeWagers") {

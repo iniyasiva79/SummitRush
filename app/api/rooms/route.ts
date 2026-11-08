@@ -21,7 +21,6 @@ export async function POST(request: Request) {
   const result = await createStoredRoom({
     name: String(body.name ?? ""),
     maxPlayers: Number(body.maxPlayers),
-    mode: body.mode === "team" ? "team" : "showdown",
     mountainId: isMountainId(body.mountainId) ? body.mountainId : "fuji",
     host: {
       id: String(body.playerId ?? ""),

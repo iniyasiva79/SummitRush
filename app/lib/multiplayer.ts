@@ -8,11 +8,10 @@ import { MOUNTAINS, isMountainId, type MountainId } from "./mountains";
 
 export const ROOM_MIN = 2;
 export const ROOM_MAX = 6;
-export const TEAM_CLIMB_COINS = 100;
 export const ROOM_CODE_LENGTH = 6;
 export const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
-export type RoomMode = "showdown" | "team";
+export type RoomMode = "showdown";
 export type RoomPhase = "lobby" | "live" | "finished";
 export type TaskPlayStatus = "none" | "ready" | "running" | "paused" | "completed";
 
@@ -90,6 +89,16 @@ export type PublicMember = {
   you: boolean;
   taskName: string | null;
   wagersLocked: boolean;
+  wagers: PublicWager[];
+};
+
+export type PublicWager = {
+  targetId: string;
+  username: string;
+  predictedMinutes: number;
+  amount: number;
+  settled: boolean;
+  won: boolean | null;
 };
 
 export type PublicRoom = {
@@ -117,10 +126,10 @@ export type RoomAction =
   | { type: "leave" }
   | { type: "heartbeat"; accumulatedMs?: number; equippedAccessories?: string[]; avatarId?: AvatarId | null }
   | { type: "ready"; ready: boolean }
-  | { type: "configure"; name?: string; maxPlayers?: number; mode?: RoomMode; mountainId?: MountainId }
+  | { type: "configure"; name?: string; maxPlayers?: number; mountainId?: MountainId }
   | { type: "start" }
-  | { type: "submitTask"; name: string; predictedMinutes: number; stake: number }
-  | { type: "placeWagers"; wagers: { targetId: string; predictedMinutes: number; amount: number }[] }
+  | { type: "submitTask"; name: string; predictedMinutes: number }
+  | { type: "placeWagers"; wagers: { targetId: string; predictedMinutes?: number; amount: number }[] }
   | { type: "startTask"; now: number }
   | { type: "pauseTask"; now: number }
   | { type: "resumeTask"; now: number }
@@ -249,9 +258,7 @@ export function applyRoomAction(
       }
       room.maxPlayers = action.maxPlayers;
     }
-    if (action.mode === "showdown" || action.mode === "team") {
-      room.mode = action.mode;
-    }
+    room.mode = "showdown";
     if (action.mountainId && isMountainId(action.mountainId)) {
       room.mountainId = action.mountainId;
     }
@@ -370,7 +377,7 @@ function leaveRoom(room: RoomState, actor: RoomMember): ActionResult {
 function submitTask(
   room: RoomState,
   actor: RoomMember,
-  action: { name: string; predictedMinutes: number; stake: number },
+  action: { name: string; predictedMinutes: number },
 ): ActionResult {
   if (room.phase !== "live") {
     return { ok: false, error: "Wait for the host to start the climb." };
@@ -385,18 +392,11 @@ function submitTask(
   if (!Number.isInteger(action.predictedMinutes) || action.predictedMinutes < 1 || action.predictedMinutes > 240) {
     return { ok: false, error: "Predict between 1 and 240 minutes." };
   }
-  if (!Number.isInteger(action.stake) || action.stake < 0) {
-    return { ok: false, error: "Enter a whole-number stake." };
-  }
-  if (action.stake > actor.wallet) {
-    return { ok: false, error: "You do not have enough Summit Coins for that stake." };
-  }
-  actor.wallet -= action.stake;
   actor.task = {
     ...emptyTask(),
     name,
     predictedMs: action.predictedMinutes * 60_000,
-    stake: action.stake,
+    stake: 0,
     status: "ready",
   };
   return ok(room);
@@ -405,13 +405,16 @@ function submitTask(
 function placeWagers(
   room: RoomState,
   actor: RoomMember,
-  wagers: { targetId: string; predictedMinutes: number; amount: number }[],
+  wagers: { targetId: string; predictedMinutes?: number; amount: number }[],
 ): ActionResult {
   if (room.phase !== "live" || actor.task.status !== "ready") {
     return { ok: false, error: "Lock in your own task, then place wagers before starting the timer." };
   }
   if (actor.wagers.length > 0) {
     return { ok: false, error: "Your wagers are already locked in." };
+  }
+  if (wagers.some((item) => item.targetId === actor.id)) {
+    return { ok: false, error: "You cannot bet on yourself." };
   }
   const others = room.members.filter((item) => !item.left && item.id !== actor.id);
   const next: RoomWager[] = [];
@@ -421,13 +424,16 @@ function placeWagers(
     if (!wager || !Number.isInteger(wager.amount) || wager.amount < 0) {
       return { ok: false, error: "Enter a wager for each other climber. Use 0 to skip." };
     }
-    if (!Number.isInteger(wager.predictedMinutes) || wager.predictedMinutes < 1 || wager.predictedMinutes > 240) {
-      return { ok: false, error: `Predict ${other.username}'s time between 1 and 240 minutes.` };
+    const publishedMinutes = other.task.predictedMs > 0 ? other.task.predictedMs / 60_000 : null;
+    const fallbackMinutes = wager.predictedMinutes;
+    const predictedMinutes = publishedMinutes ?? fallbackMinutes;
+    if (wager.amount > 0 && (predictedMinutes == null || !Number.isInteger(predictedMinutes) || predictedMinutes < 1 || predictedMinutes > 240)) {
+      return { ok: false, error: `Wait for ${other.username} to lock in a predicted time, or wager 0 to skip.` };
     }
     total += wager.amount;
     next.push({
       targetId: other.id,
-      predictedMs: wager.predictedMinutes * 60_000,
+      predictedMs: predictedMinutes && predictedMinutes > 0 ? predictedMinutes * 60_000 : 0,
       amount: wager.amount,
       settled: false,
       won: null,
@@ -462,8 +468,9 @@ function finishMemberTask(room: RoomState, actor: RoomMember, now: number): Acti
     bonusCoins += COMEBACK_COINS;
     bonuses.push("Comeback Climber +30");
   }
-  if (success) {
-    actor.wallet += actor.task.stake * 2;
+  if (actor.task.stake > 0) {
+    actor.wallet += actor.task.stake;
+    actor.task.stake = 0;
   }
   actor.wallet += bonusCoins;
   actor.task.status = "completed";
@@ -476,12 +483,13 @@ function finishMemberTask(room: RoomState, actor: RoomMember, now: number): Acti
   actor.task.bonuses = bonuses;
   actor.completedCount += 1;
   room.teamCompletions += 1;
+  room.mode = "showdown";
   for (const member of room.members) {
     for (const wager of member.wagers) {
-      if (wager.targetId !== actor.id || wager.settled) {
+      if (wager.targetId !== actor.id || wager.settled || wager.amount <= 0) {
         continue;
       }
-      const won = actualMs <= wager.predictedMs;
+      const won = wager.predictedMs > 0 && actualMs <= wager.predictedMs;
       wager.settled = true;
       wager.won = won;
       if (won) {
@@ -490,16 +498,7 @@ function finishMemberTask(room: RoomState, actor: RoomMember, now: number): Acti
     }
   }
   const seated = room.members.filter((item) => !item.left);
-  const roundGoal = Math.max(1, seated.length);
-  if (room.mode === "team") {
-    if (!room.teamBonusPaid && room.teamCompletions >= roundGoal) {
-      room.teamBonusPaid = true;
-      room.phase = "finished";
-      for (const member of seated) {
-        member.wallet += TEAM_CLIMB_COINS;
-      }
-    }
-  } else if (seated.every((item) => item.task.status === "completed")) {
+  if (seated.every((item) => item.task.status === "completed")) {
     room.phase = "finished";
   }
   return ok(room);
@@ -541,7 +540,7 @@ export function toPublicRoom(room: RoomState, viewerId?: string | null, includeT
     name: room.name,
     hostId: room.hostId,
     maxPlayers: room.maxPlayers,
-    mode: room.mode,
+    mode: "showdown",
     mountainId: room.mountainId,
     mountainName: mountain?.name ?? "Mount Fuji",
     required,
@@ -579,7 +578,7 @@ function toPublicMember(
     completedCount: member.completedCount,
     required,
     progress,
-    predictedMinutes: you && member.task.predictedMs > 0 ? member.task.predictedMs / 60_000 : null,
+    predictedMinutes: member.task.predictedMs > 0 ? member.task.predictedMs / 60_000 : null,
     elapsedMs: you && member.task.status !== "none" ? workingTaskMs(member.task, Date.now()) : null,
     finished: member.task.status === "completed",
     success: you ? member.task.success : member.task.status === "completed" ? member.task.success : null,
@@ -588,7 +587,22 @@ function toPublicMember(
     you,
     taskName: you ? member.task.name || null : null,
     wagersLocked: member.wagers.length > 0,
+    wagers: you ? publicWagers(room, member) : [],
   };
+}
+
+function publicWagers(room: RoomState, member: RoomMember): PublicWager[] {
+  return member.wagers.map((wager) => {
+    const target = room.members.find((item) => item.id === wager.targetId);
+    return {
+      targetId: wager.targetId,
+      username: target?.username ?? "climber",
+      predictedMinutes: wager.predictedMs > 0 ? wager.predictedMs / 60_000 : target && target.task.predictedMs > 0 ? target.task.predictedMs / 60_000 : 0,
+      amount: wager.amount,
+      settled: wager.settled,
+      won: wager.won,
+    };
+  });
 }
 
 function accuracy(room: RoomState, memberId: string) {

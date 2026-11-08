@@ -1,5 +1,5 @@
 import { readActiveAccount, updateActiveAccount, type PublicAccount } from "./accounts";
-import type { PublicRoom, RoomMode } from "./multiplayer";
+import type { PublicRoom } from "./multiplayer";
 import { isMountainId, type MountainId } from "./mountains";
 
 const TOKEN_PREFIX = "summitrush.roomToken.";
@@ -72,7 +72,6 @@ export async function createRoom(input: {
   account: PublicAccount;
   name: string;
   maxPlayers: number;
-  mode: RoomMode;
   mountainId: MountainId;
 }) {
   const response = await fetch("/api/rooms", {
@@ -81,7 +80,6 @@ export async function createRoom(input: {
     body: JSON.stringify({
       name: input.name,
       maxPlayers: input.maxPlayers,
-      mode: input.mode,
       mountainId: isMountainId(input.mountainId) ? input.mountainId : "fuji",
       playerId: input.account.id,
       username: input.account.username,

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { useActiveAccount } from "../lib/accounts";
 import { MOUNTAINS } from "../lib/mountains";
-import { CODE_ALPHABET, ROOM_MAX, ROOM_MIN, type RoomMode } from "../lib/multiplayer";
+import { CODE_ALPHABET, ROOM_MAX, ROOM_MIN } from "../lib/multiplayer";
 import { createRoom } from "../lib/room-client";
 import { GameButton } from "./GameButton";
 import { GameCard } from "./GameCard";
@@ -18,7 +18,6 @@ export function RoomHub() {
   const router = useRouter();
   const [name, setName] = useState("Saturday Study Summit");
   const [maxPlayers, setMaxPlayers] = useState(4);
-  const [mode, setMode] = useState<RoomMode>("showdown");
   const [mountainId, setMountainId] = useState(MOUNTAINS[0].id);
   const [joinCode, setJoinCode] = useState("");
   const [notice, setNotice] = useState("");
@@ -47,7 +46,6 @@ export function RoomHub() {
       account,
       name,
       maxPlayers,
-      mode,
       mountainId,
     });
     setPending(false);
@@ -77,7 +75,7 @@ export function RoomHub() {
           <p className={styles.kicker}>Summit Showdown</p>
           <h1>Private rooms</h1>
           <p>
-            Create a room with a unique code, or join a friend&apos;s climb.
+            Create a Summit Showdown with a unique code, or join a friend&apos;s climb.
             Rooms hold 2 to 6 players and keep everyone in sync across devices.
           </p>
         </header>
@@ -118,13 +116,6 @@ export function RoomHub() {
                         {count} players
                       </option>
                     ))}
-                  </select>
-                </label>
-                <label className={form.field}>
-                  <span>Mode</span>
-                  <select value={mode} onChange={(event) => setMode(event.target.value as RoomMode)}>
-                    <option value="showdown">Summit Showdown (compete)</option>
-                    <option value="team">Team climb</option>
                   </select>
                 </label>
                 <label className={form.field}>
