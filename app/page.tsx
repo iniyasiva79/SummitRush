@@ -1,8 +1,8 @@
 import { GameButton } from "./components/GameButton";
 import { GameCard } from "./components/GameCard";
-import { GameNav } from "./components/GameNav";
 import { Palette } from "./components/Palette";
 import { ScreenFrame } from "./components/ScreenFrame";
+import { SummitBar } from "./components/SummitBar";
 import styles from "./page.module.css";
 
 const themeSections = [
@@ -14,7 +14,7 @@ const themeSections = [
 export default function Home() {
   return (
     <ScreenFrame>
-      <GameNav brand="SummitRush" items={themeSections} />
+      <SummitBar themeLinks={themeSections} />
       <main id="top" className={styles.main}>
         <header className={styles.hero}>
           <p className={styles.kicker}>Visual theme</p>

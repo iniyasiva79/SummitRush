@@ -1,0 +1,21 @@
+.main {
+  width: min(720px, 100%);
+  margin: 0 auto;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  margin-top: 16px;
+  padding: 12px 18px;
+  border: var(--outline);
+  border-radius: 999px;
+  background: var(--forest);
+  box-shadow: var(--shadow);
+  color: var(--snow);
+  font-family: var(--font-display), "Lilita One", "Trebuchet MS", sans-serif;
+  font-size: 1.05rem;
+  text-decoration: none;
+}
