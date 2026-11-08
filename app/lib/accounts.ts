@@ -49,6 +49,7 @@ export type PublicAccount = {
   coins: number;
   progress: PlayerProgress;
   avatarId: AvatarId | null;
+  ownedAccessories: string[];
   equippedAccessories: string[];
   tasks: GameTask[];
   pendingResultTaskId: string | null;
@@ -141,6 +142,7 @@ export function updateActiveAccount(
       | "coins"
       | "progress"
       | "avatarId"
+      | "ownedAccessories"
       | "equippedAccessories"
       | "tasks"
       | "pendingResultTaskId"
@@ -178,6 +180,12 @@ export function updateActiveAccount(
         : partial.avatarId && isAvatarId(partial.avatarId)
           ? partial.avatarId
           : current.avatarId,
+    ownedAccessories: partial.ownedAccessories
+      ? normalizeAccessoryIds([
+          ...partial.ownedAccessories,
+          ...(partial.equippedAccessories ?? current.equippedAccessories),
+        ])
+      : current.ownedAccessories,
     equippedAccessories: partial.equippedAccessories
       ? normalizeAccessoryIds(partial.equippedAccessories)
       : current.equippedAccessories,
@@ -224,6 +232,7 @@ export async function signup(
     coins: STARTING_COINS,
     progress: emptyProgress(),
     avatarId: null,
+    ownedAccessories: [],
     equippedAccessories: [],
     tasks: [],
     pendingResultTaskId: null,
@@ -392,6 +401,10 @@ function normalizeAccount(account: StoredAccount): StoredAccount {
         : STARTING_COINS,
     progress: normalizeProgress(account.progress),
     avatarId: isAvatarId(account.avatarId) ? account.avatarId : null,
+    ownedAccessories: normalizeAccessoryIds([
+      ...(account.ownedAccessories ?? []),
+      ...(account.equippedAccessories ?? []),
+    ]),
     equippedAccessories: normalizeAccessoryIds(account.equippedAccessories),
     tasks: normalizeTasks(account.tasks),
     pendingResultTaskId:
@@ -457,6 +470,7 @@ function toPublic(account: StoredAccount): PublicAccount {
     coins: account.coins,
     progress: account.progress,
     avatarId: account.avatarId,
+    ownedAccessories: account.ownedAccessories,
     equippedAccessories: account.equippedAccessories,
     tasks: account.tasks,
     pendingResultTaskId: account.pendingResultTaskId,

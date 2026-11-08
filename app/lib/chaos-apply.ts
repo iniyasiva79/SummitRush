@@ -1,4 +1,5 @@
 import { updateActiveAccount, type PublicAccount } from "./accounts";
+import { grantOwned } from "./avatars";
 import { offerChaos } from "./chaos";
 import type { GameTask } from "./gameplay";
 
@@ -9,6 +10,7 @@ export function rollAndSaveChaos(input: {
   triggerKey: string;
   resumeTaskId: string | null;
   tasks: GameTask[];
+  guaranteed?: boolean;
 }) {
   const result = offerChaos({
     enabled: input.enabled,
@@ -19,16 +21,26 @@ export function rollAndSaveChaos(input: {
     timerRunning: false,
     now: Date.now(),
     seed: input.account.id,
-    ownedCosmetics: input.account.equippedAccessories,
+    ownedCosmetics: input.account.ownedAccessories,
     resumeTaskId: input.resumeTaskId,
+    guaranteed: input.guaranteed,
   });
+  const granted = result.cosmeticId
+    ? grantOwned(
+        input.account.ownedAccessories,
+        input.account.equippedAccessories,
+        result.cosmeticId,
+      )
+    : {
+        owned: input.account.ownedAccessories,
+        equipped: input.account.equippedAccessories,
+      };
   updateActiveAccount({
     chaosEvents: result.events,
     chaosRolls: result.rolls,
     coins: input.account.coins + result.coinsDelta,
-    equippedAccessories: result.cosmeticId
-      ? [...new Set([...input.account.equippedAccessories, result.cosmeticId])]
-      : input.account.equippedAccessories,
+    ownedAccessories: granted.owned,
+    equippedAccessories: granted.equipped,
     tasks: input.tasks,
     progress: {
       ...input.account.progress,

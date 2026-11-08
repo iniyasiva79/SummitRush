@@ -3,13 +3,16 @@
 import { useEffect } from "react";
 import { readActiveAccount, updateActiveAccount, useActiveAccount } from "../lib/accounts";
 import { rollAndSaveChaos } from "../lib/chaos-apply";
+import { CHAOS_MINUTE_MS } from "../lib/chaos";
 import {
   catchCheckpoint,
   closeCheckpoint,
   parkCheckpoint,
+  pauseTask,
   replaceTask,
   resumeTask,
   rewardCheckpoint,
+  workingMs,
 } from "../lib/gameplay";
 import { useSettings } from "../lib/settings";
 import { ChaosCard } from "./ChaosCard";
@@ -32,10 +35,41 @@ export function CheckpointHost() {
       const held = catchCheckpoint(running, Date.now());
       if (held) {
         updateActiveAccount({ tasks: replaceTask(current.tasks, held) });
+        return;
+      }
+      const chaosBusy = current.chaosEvents.some((item) => !item.acknowledged);
+      const minuteKey = `task:${running.id}:minute`;
+      if (
+        !settings.chaosCards ||
+        chaosBusy ||
+        current.chaosRolls.includes(minuteKey) ||
+        workingMs(running, Date.now()) < CHAOS_MINUTE_MS
+      ) {
+        return;
+      }
+      const paused = pauseTask(running, Date.now());
+      const created = rollAndSaveChaos({
+        account: current,
+        enabled: true,
+        mountainId: running.mountainId,
+        triggerKey: minuteKey,
+        resumeTaskId: running.id,
+        tasks: replaceTask(current.tasks, paused),
+        guaranteed: true,
+      });
+      if (!created) {
+        const latest = readActiveAccount();
+        const parked = latest?.tasks.find((item) => item.id === running.id);
+        if (!latest || !parked) {
+          return;
+        }
+        updateActiveAccount({
+          tasks: replaceTask(latest.tasks, resumeTask(parked, Date.now())),
+        });
       }
     }, 250);
     return () => window.clearInterval(id);
-  }, []);
+  }, [settings.chaosCards]);
 
   function pay() {
     const current = readActiveAccount();

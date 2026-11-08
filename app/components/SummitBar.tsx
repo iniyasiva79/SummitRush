@@ -184,7 +184,8 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
           <InfoSection title="Chaos Cards">
             <p>
               Chaos Cards are occasional trail events, at most three per
-              mountain, and they never interrupt a running timer.
+              mountain. The first card can appear after one minute of working
+              time. The timer pauses while a card is open.
             </p>
             <ul>
               <li>Boulder Breakdown: a short puzzle can earn 20 coins.</li>

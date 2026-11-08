@@ -12,3 +12,46 @@
 .chosen p {
   margin: 0;
 }
+
+.row,
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.on,
+.off {
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.on {
+  background: #2478a3;
+  color: #fff;
+}
+
+.off {
+  background: #dcecf5;
+  color: #19334f;
+}

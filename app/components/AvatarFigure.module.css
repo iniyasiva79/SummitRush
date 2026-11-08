@@ -21,13 +21,14 @@
   box-shadow: none;
 }
 
-.trail .gearList {
-  display: none;
-}
-
 .profile {
   width: min(280px, 100%);
   aspect-ratio: 3 / 4;
+}
+
+.male,
+.female {
+  isolation: isolate;
 }
 
 .card > img,
@@ -41,45 +42,143 @@
   object-position: center bottom;
 }
 
-.head,
-.face {
+.wear {
   position: absolute;
-  width: 28%;
-  aspect-ratio: 1;
-  overflow: hidden;
-  border: 2px solid #ffffff;
-  border-radius: 50%;
-  box-shadow: 0 8px 18px rgb(16 32 58 / 35%);
+  z-index: 2;
+  pointer-events: none;
 }
 
-.head img,
-.face img {
-  object-fit: cover;
+.wear img {
+  object-fit: contain;
+}
+
+.beanie img,
+.helmet img {
+  object-position: center bottom;
 }
 
 .head {
-  top: 7%;
+  top: 9%;
   left: 50%;
+  width: 12%;
+  aspect-ratio: 0.9;
   transform: translateX(-50%);
 }
 
 .face {
-  top: 22%;
-  left: 58%;
-  width: 34%;
+  top: 16%;
+  left: 50%;
+  width: 11%;
+  aspect-ratio: 2.8;
+  transform: translateX(-50%);
 }
 
-.gearList {
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
-  left: 8px;
-  margin: 0;
-  padding: 6px 8px;
-  border-radius: 10px;
-  background: rgb(16 36 58 / 72%);
-  color: #ffffff;
-  font-size: 0.85rem;
-  font-weight: 800;
-  text-align: center;
+.pack {
+  top: 24%;
+  left: 24%;
+  width: 16%;
+  aspect-ratio: 0.72;
+}
+
+.boots {
+  right: 33%;
+  bottom: 5%;
+  left: 36%;
+  height: 11%;
+}
+
+.male .beanie {
+  top: 1.5%;
+  width: 13%;
+}
+
+.female .beanie {
+  top: 7%;
+  width: 13%;
+}
+
+.male .helmet {
+  top: 0;
+  width: 16%;
+  aspect-ratio: 0.88;
+}
+
+.female .helmet {
+  top: 0;
+  width: 17%;
+  aspect-ratio: 0.88;
+}
+
+.male .glasses {
+  top: 15.2%;
+  width: 11%;
+}
+
+.female .glasses {
+  top: 15.8%;
+  width: 12%;
+}
+
+.male .backpack {
+  top: 23%;
+  left: 23%;
+  width: 17%;
+}
+
+.female .backpack {
+  top: 22%;
+  left: 22%;
+  width: 17%;
+}
+
+.trail .head,
+.trail.male .beanie {
+  top: 1%;
+  left: 58%;
+  width: 22%;
+}
+
+.trail.female .beanie {
+  top: 0;
+  left: 54%;
+  width: 24%;
+}
+
+.trail.male .helmet {
+  top: 0;
+  left: 57%;
+  width: 26%;
+}
+
+.trail.female .helmet {
+  top: 0;
+  left: 53%;
+  width: 28%;
+}
+
+.trail .face,
+.trail.male .glasses {
+  top: 12%;
+  left: 60%;
+  width: 18%;
+}
+
+.trail.female .glasses {
+  top: 11%;
+  left: 56%;
+  width: 18%;
+}
+
+.trail .pack,
+.trail .backpack {
+  top: 16%;
+  left: 10%;
+  width: 32%;
+}
+
+.trail .boots {
+  right: 16%;
+  bottom: 1%;
+  left: 22%;
+  height: 15%;
 }

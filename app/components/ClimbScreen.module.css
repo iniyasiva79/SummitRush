@@ -176,6 +176,41 @@
   background: var(--gold);
 }
 
+.goldFlag {
+  background: #f2c14e;
+  box-shadow: 0 0 0 2px #19334f, 0 0 12px rgb(242 193 77 / 55%);
+}
+
+.sparkle,
+.print {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  left: clamp(12px, var(--x), calc(100% - 12px));
+  bottom: clamp(8px, var(--y), calc(100% - 24px));
+  transform: translate(-50%, 0);
+}
+
+.sparkle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(242 193 77 / 55%), transparent 70%);
+  animation: glowDust 1.6s ease-in-out infinite;
+}
+
+.print {
+  width: 10px;
+  height: 16px;
+  border-radius: 40%;
+  background: rgb(70 52 36 / 45%);
+}
+
+.party span {
+  width: 11px;
+  height: 16px;
+}
+
 .skippedFlag {
   background: transparent;
 }
@@ -419,6 +454,10 @@
   border: 0;
 }
 
+@keyframes glowDust {
+  50% { opacity: 0.55; transform: translate(-50%, -6px) scale(1.08); }
+}
+
 @keyframes plantFlag {
   from { transform: translate(-50%, 18px) scaleY(0.2); opacity: 0; }
   to { transform: translate(-50%, 0) scaleY(1); opacity: 1; }
@@ -438,6 +477,7 @@
   }
 }
 
+:global(html[data-motion="reduce"]) .sparkle,
 :global(html[data-motion="reduce"]) .climber,
 :global(html[data-motion="reduce"]) .summitPlant,
 :global(html[data-motion="reduce"]) .cloth,

@@ -1,6 +1,9 @@
+import { ACCESSORIES, accessoryById } from "./avatars";
+
 export const CHAOS_LIMIT = 3;
 export const BOULDER_COINS = 20;
 export const CRATE_COINS = 15;
+export const CHAOS_MINUTE_MS = 60_000;
 
 export const CHAOS_CARDS = [
   "boulder-breakdown",
@@ -28,7 +31,7 @@ export type ChaosEvent = {
   resumeTaskId: string | null;
 };
 
-const COSMETICS = ["beanie", "glasses"] as const;
+const CRATE_ITEMS = ACCESSORIES.filter((item) => item.id !== "celebration").map((item) => item.id);
 
 export function chaosTitle(card: ChaosCardId) {
   if (card === "boulder-breakdown") {
@@ -83,6 +86,7 @@ export function offerChaos(input: {
   seed: string;
   ownedCosmetics: string[];
   resumeTaskId?: string | null;
+  guaranteed?: boolean;
 }): ChaosRollResult {
   if (input.events.some((event) => !event.acknowledged)) {
     return emptyRoll(input.events, input.rolls);
@@ -96,7 +100,7 @@ export function offerChaos(input: {
   const rolls = [...input.rolls, input.triggerKey];
   const onMountain = input.events.filter((event) => event.mountainId === input.mountainId).length;
   const roll = chaosHash(`${input.seed}:${input.triggerKey}`);
-  if (onMountain >= CHAOS_LIMIT || roll % 4 !== 0) {
+  if (onMountain >= CHAOS_LIMIT || (!input.guaranteed && roll % 4 !== 0)) {
     return emptyRoll(input.events, rolls);
   }
   const card = CHAOS_CARDS[roll % CHAOS_CARDS.length];
@@ -223,9 +227,12 @@ function buildEvent(
       outcome: "The rockslide makes the path harder to see. The right answer clears the rocks. This card does not change Summit Coins.",
     };
   }
-  const available = COSMETICS.find((item) => !input.ownedCosmetics.includes(item));
-  if (available && roll % 2 === 0) {
-    const name = available === "beanie" ? "Summit beanie" : "Glacier glasses";
+  const available = CRATE_ITEMS.filter((item) => !input.ownedCosmetics.includes(item));
+  const cosmeticId = available.length > 0 && roll % 2 === 0
+    ? available[roll % available.length]
+    : undefined;
+  if (cosmeticId) {
+    const name = accessoryById(cosmeticId)?.name ?? "cosmetic";
     return {
       ...base,
       prompt: "",
@@ -233,7 +240,7 @@ function buildEvent(
       answer: "",
       solved: true,
       rewardApplied: true,
-      cosmeticId: available,
+      cosmeticId,
       outcome: `The crate held the ${name}. It is now on this account and does not change the score.`,
     };
   }

@@ -303,8 +303,18 @@ export function ClimbScreen({ mountainId }: ClimbScreenProps) {
               </span>
             )}
             {complete ? (
-              <div className={styles.confetti} aria-hidden="true">
-                {CONFETTI.map((piece) => (
+              <div className={`${styles.confetti} ${account.equippedAccessories.includes("celebration") ? styles.party : ""}`} aria-hidden="true">
+                {(account.equippedAccessories.includes("celebration")
+                  ? [
+                      ...CONFETTI,
+                      ...CONFETTI.map((piece) => ({
+                        ...piece,
+                        x: `${Math.min(96, Number.parseFloat(piece.x) + 4)}%`,
+                        delay: `${Number.parseInt(piece.delay, 10) + 90}ms`,
+                      })),
+                    ]
+                  : CONFETTI
+                ).map((piece) => (
                   <span
                     key={`${piece.x}-${piece.delay}`}
                     style={{
@@ -318,6 +328,26 @@ export function ClimbScreen({ mountainId }: ClimbScreenProps) {
                 ))}
               </div>
             ) : null}
+            {account.equippedAccessories.includes("sparkle") ? (
+              <span
+                className={styles.sparkle}
+                style={{ ["--x" as string]: avatarPoint.left, ["--y" as string]: avatarPoint.bottom }}
+                aria-hidden="true"
+              />
+            ) : null}
+            {account.equippedAccessories.includes("footprints")
+              ? [0.04, 0.08, 0.12].map((offset) => {
+                  const print = trailPoint(Math.max(0, fraction - offset));
+                  return (
+                    <span
+                      key={offset}
+                      className={styles.print}
+                      style={{ ["--x" as string]: print.left, ["--y" as string]: print.bottom }}
+                      aria-hidden="true"
+                    />
+                  );
+                })
+              : null}
             {account.chaosEvents
               .filter((item) => item.mountainId === mountain.id && !item.acknowledged)
               .map((item) => (
@@ -331,7 +361,7 @@ export function ClimbScreen({ mountainId }: ClimbScreenProps) {
                   return (
                     <span
                       key={checkpoint.id}
-                      className={`${styles.flag} ${checkpoint.state === "completed" ? styles.planted : ""} ${checkpoint.state === "skipped" ? styles.skippedFlag : ""}`}
+                      className={`${styles.flag} ${checkpoint.state === "completed" ? styles.planted : ""} ${checkpoint.state === "skipped" ? styles.skippedFlag : ""} ${checkpoint.state !== "skipped" && account.equippedAccessories.includes("flag") ? styles.goldFlag : ""}`}
                       style={{ ["--x" as string]: point.left, ["--y" as string]: point.bottom }}
                     >
                       <span className={styles.srOnly}>

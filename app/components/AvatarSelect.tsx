@@ -64,7 +64,7 @@ export function AvatarSelect() {
               >
                 <AvatarFigure
                   avatarId={avatar.id}
-                  equipped={isSelected ? account?.equippedAccessories : []}
+                  equipped={isSelected ? account?.equippedAccessories ?? [] : []}
                 />
                 <span className={styles.label}>{avatar.label}</span>
                 <span className={styles.detail}>{avatar.detail}</span>

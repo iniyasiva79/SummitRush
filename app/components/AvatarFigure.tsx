@@ -1,7 +1,7 @@
 import Image from "next/image";
 import {
-  accessoriesFor,
   avatarById,
+  wearablesFor,
   type AvatarId,
 } from "../lib/avatars";
 import styles from "./AvatarFigure.module.css";
@@ -10,6 +10,20 @@ type AvatarFigureProps = {
   avatarId: AvatarId;
   equipped?: string[];
   size?: "card" | "profile" | "trail";
+};
+
+const SLOT_CLASS: Record<string, string> = {
+  head: styles.head,
+  face: styles.face,
+  pack: styles.pack,
+  boots: styles.boots,
+};
+
+const ITEM_CLASS: Record<string, string> = {
+  beanie: styles.beanie,
+  glasses: styles.glasses,
+  helmet: styles.helmet,
+  backpack: styles.backpack,
 };
 
 export function AvatarFigure({
@@ -21,10 +35,12 @@ export function AvatarFigure({
   if (!avatar) {
     return null;
   }
-  const gear = accessoriesFor(equipped);
+  const gear = wearablesFor(equipped);
 
   return (
-    <div className={size === "profile" ? styles.profile : size === "trail" ? styles.trail : styles.card}>
+    <div
+      className={`${size === "profile" ? styles.profile : size === "trail" ? styles.trail : styles.card} ${styles[avatarId]}`}
+    >
       <Image
         src={size === "trail" ? avatar.trailSrc : avatar.src}
         alt=""
@@ -34,16 +50,11 @@ export function AvatarFigure({
       {gear.map((item) => (
         <span
           key={item.id}
-          className={item.slot === "head" ? styles.head : styles.face}
+          className={`${styles.wear} ${SLOT_CLASS[item.slot] ?? ""} ${ITEM_CLASS[item.id] ?? ""}`}
         >
-          <Image src={item.src} alt="" fill sizes="120px" />
+          <Image src={item.overlaySrc ?? item.src} alt="" fill sizes="160px" />
         </span>
       ))}
-      {gear.length > 0 ? (
-        <p className={styles.gearList}>
-          {gear.map((item) => item.name).join(", ")}
-        </p>
-      ) : null}
     </div>
   );
 }
