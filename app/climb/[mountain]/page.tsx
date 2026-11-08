@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ClimbPlaceholder } from "../../components/ClimbPlaceholder";
+import { ClimbScreen } from "../../components/ClimbScreen";
 import { MOUNTAINS, isMountainId, mountainById } from "../../lib/mountains";
 
 type ClimbPageProps = {
@@ -15,11 +15,11 @@ export async function generateMetadata({ params }: ClimbPageProps): Promise<Meta
   const known = isMountainId(mountain) ? mountainById(mountain) : null;
   return {
     title: known ? `${known.name} · SummitRush` : "Climb · SummitRush",
-    description: "The SummitRush climb screen is not built yet.",
+    description: "Create a task, predict its time, and climb this SummitRush mountain.",
   };
 }
 
 export default async function ClimbPage({ params }: ClimbPageProps) {
   const { mountain } = await params;
-  return <ClimbPlaceholder mountainId={mountain} />;
+  return <ClimbScreen mountainId={mountain} />;
 }

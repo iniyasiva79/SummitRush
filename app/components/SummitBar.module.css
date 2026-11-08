@@ -18,6 +18,12 @@
   box-shadow: none;
 }
 
+.left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .right {
   display: flex;
   flex-direction: column;

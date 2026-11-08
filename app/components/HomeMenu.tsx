@@ -16,12 +16,22 @@ export function HomeMenu() {
           Sign Up
         </GameButton>
       </div>
-      <GameButton href="/play" className={styles.menuButton}>
-        Play
-      </GameButton>
-      <GameButton href="/room" variant="secondary" className={styles.menuButton}>
-        Private Room
-      </GameButton>
+      <div className={styles.mode}>
+        <GameButton href="/play" className={styles.menuButton}>
+          PLAYER
+        </GameButton>
+        <p className={styles.modeNote}>
+          1 Player — Complete tasks and climb mountains on your own.
+        </p>
+      </div>
+      <div className={styles.mode}>
+        <GameButton href="/room" variant="secondary" className={styles.menuButton}>
+          PRIVATE ROOM
+        </GameButton>
+        <p className={styles.modeNote}>
+          Multiplayer — Create or join a private room to compete with friends.
+        </p>
+      </div>
     </div>
   );
 }

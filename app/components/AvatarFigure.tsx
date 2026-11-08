@@ -9,7 +9,7 @@ import styles from "./AvatarFigure.module.css";
 type AvatarFigureProps = {
   avatarId: AvatarId;
   equipped?: string[];
-  size?: "card" | "profile";
+  size?: "card" | "profile" | "trail";
 };
 
 export function AvatarFigure({
@@ -24,7 +24,7 @@ export function AvatarFigure({
   const gear = accessoriesFor(equipped);
 
   return (
-    <div className={size === "profile" ? styles.profile : styles.card}>
+    <div className={size === "profile" ? styles.profile : size === "trail" ? styles.trail : styles.card}>
       <Image
         src={avatar.src}
         alt=""

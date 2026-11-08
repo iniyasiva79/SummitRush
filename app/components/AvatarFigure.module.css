@@ -6,8 +6,20 @@
   background: #1c3348;
 }
 
-.card {
+.card,
+.trail {
   aspect-ratio: 3 / 4;
+}
+
+.trail {
+  width: 72px;
+  border: 2px solid #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgb(0 0 0 / 40%);
+}
+
+.trail .gearList {
+  display: none;
 }
 
 .profile {
@@ -16,6 +28,7 @@
 }
 
 .card > img,
+.trail > img,
 .profile > img {
   object-fit: cover;
   object-position: center 20%;

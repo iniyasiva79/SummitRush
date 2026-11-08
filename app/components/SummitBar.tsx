@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { logout, useActiveAccount } from "../lib/accounts";
 import { avatarById } from "../lib/avatars";
-import { progressLabel } from "../lib/mountains";
+import { MOUNTAINS, progressLabel, tasksCompleted } from "../lib/mountains";
+import { CheckpointHost } from "./CheckpointHost";
 import { useCoins } from "../lib/coins";
 import {
   updateSettings,
@@ -85,6 +86,7 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
   return (
     <div className={styles.wrap}>
       <header className={styles.bar}>
+        <div className={styles.left}>
         <button
           ref={gearRef}
           type="button"
@@ -99,6 +101,10 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
           <GearIcon />
           <span className={styles.srOnly}>Accessibility settings</span>
         </button>
+        <Link className={styles.iconButton} href="/" aria-label="Home">
+          <HomeIcon />
+        </Link>
+        </div>
         <div className={styles.right}>
           <div className={styles.tools}>
             <p className={styles.coins}>
@@ -184,7 +190,7 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
               <li>Rockslide: a simple math problem clears the path.</li>
               <li>Mystery Supply Crate: a small coin reward or a cosmetic.</li>
             </ul>
-            <p>Events encountered: none yet.</p>
+            <p>Events encountered: 0. Chaos Cards are not active during this climb.</p>
           </InfoSection>
           <InfoSection title="Bonuses">
             <ul>
@@ -193,28 +199,38 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
               <li>Comeback Climber: +30 coins for finishing after the prediction.</li>
               <li>Checkpoint: +10 coins. Summit: +200 coins. Team climb: +100 coins.</li>
             </ul>
-            <p>Bonuses earned: none yet.</p>
+            <ul>
+              <li>Perfect Pace bonuses: {account?.progress.perfectPace ?? 0}</li>
+              <li>Underdog bonuses: {account?.progress.underdog ?? 0}</li>
+              <li>Comeback Climber bonuses: {account?.progress.comeback ?? 0}</li>
+              <li>Summit bonuses: {account?.progress.summits ?? 0}</li>
+            </ul>
           </InfoSection>
           <InfoSection title="Progress tracking">
             <ul>
+              <li>Total completed tasks: {account?.progress.completedTasks ?? 0}</li>
+              <li>Successful time predictions: {account?.progress.successfulPredictions ?? 0}</li>
+              <li>Unsuccessful time predictions: {account?.progress.unsuccessfulPredictions ?? 0}</li>
               <li>
-                Completed tasks:{" "}
-                {account && account.progress.completedTasks > 0
-                  ? account.progress.completedTasks
-                  : "none yet."}
+                Total mountains completed:{" "}
+                {account
+                  ? MOUNTAINS.filter(
+                      (mountain) =>
+                        tasksCompleted(account.progress.mountainTasks, mountain.id) >=
+                        mountain.tasks,
+                    ).length
+                  : 0}
               </li>
               <li>
-                Mountain progress:{" "}
+                Current mountain progress:{" "}
                 {account
                   ? progressLabel(account.progress.mountainTasks)
                   : "not started."}
               </li>
-              <li>
-                Checkpoints:{" "}
-                {account && account.progress.checkpoints > 0
-                  ? account.progress.checkpoints
-                  : "none yet."}
-              </li>
+              <li>Summit Coins earned: {account?.progress.coinsEarned ?? 0}</li>
+              <li>Summit Coins lost: {account?.progress.coinsLost ?? 0}</li>
+              <li>Checkpoints reached: {account?.progress.checkpoints ?? 0}</li>
+              <li>SummitSight activities completed: {account?.progress.summitSightCompleted ?? 0}</li>
               <li>
                 Achievements:{" "}
                 {account && account.progress.achievements.length > 0
@@ -230,26 +246,8 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
           </InfoSection>
           <InfoSection title="Wins and losses">
             <ul>
-              <li>
-                Successful time predictions:{" "}
-                {account && account.progress.successfulPredictions > 0
-                  ? account.progress.successfulPredictions
-                  : "none yet."}
-              </li>
-              <li>
-                Unsuccessful time predictions:{" "}
-                {account && account.progress.unsuccessfulPredictions > 0
-                  ? account.progress.unsuccessfulPredictions
-                  : "none yet."}
-              </li>
-              <li>
-                Virtual coin betting results:{" "}
-                {account &&
-                (account.progress.bettingWins > 0 ||
-                  account.progress.bettingLosses > 0)
-                  ? `${account.progress.bettingWins} wins, ${account.progress.bettingLosses} losses`
-                  : "none yet."}
-              </li>
+              <li>Betting wins: {account?.progress.bettingWins ?? 0}</li>
+              <li>Betting losses: {account?.progress.bettingLosses ?? 0}</li>
             </ul>
           </InfoSection>
           {themeLinks.length > 0 ? (
@@ -331,13 +329,15 @@ export function SummitBar({ themeLinks = [] }: SummitBarProps) {
               ))}
             </div>
             <p className={styles.hint}>
-              These choices are saved on this browser. There are no sound
-              effects or Chaos Cards to play yet, and tasks do not use stakes
-              yet.
+              These choices are saved on this browser. Solo, no stakes skips
+              task bets. Checkpoint rewards still apply. Summit Coins are
+              fictional. Sound effects and Chaos Cards are not part of this
+              climb yet.
             </p>
           </div>
         </div>
       ) : null}
+      <CheckpointHost />
     </div>
   );
 }
@@ -377,6 +377,15 @@ function Switch({
       <span>{label}</span>
       <span>{checked ? "On" : "Off"}</span>
     </button>
+  );
+}
+
+function HomeIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.icon}>
+      <path d="M4 11.5 12 5l8 6.5" />
+      <path d="M7 10.5V19h10v-8.5" />
+    </svg>
   );
 }
 

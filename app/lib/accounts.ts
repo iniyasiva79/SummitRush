@@ -5,6 +5,7 @@ import {
   type AvatarId,
 } from "./avatars";
 import { STARTING_COINS } from "./constants";
+import { normalizeTasks, type GameTask } from "./gameplay";
 
 export const ACCOUNTS_KEY = "summitrush.accounts";
 export const SESSION_KEY = "summitrush.session";
@@ -24,6 +25,13 @@ export type PlayerProgress = {
   unsuccessfulPredictions: number;
   bettingWins: number;
   bettingLosses: number;
+  coinsEarned: number;
+  coinsLost: number;
+  summitSightCompleted: number;
+  perfectPace: number;
+  underdog: number;
+  comeback: number;
+  summits: number;
 };
 
 export type PublicAccount = {
@@ -37,6 +45,8 @@ export type PublicAccount = {
   progress: PlayerProgress;
   avatarId: AvatarId | null;
   equippedAccessories: string[];
+  tasks: GameTask[];
+  pendingResultTaskId: string | null;
 };
 
 type StoredAccount = PublicAccount & {
@@ -68,6 +78,13 @@ export function emptyProgress(): PlayerProgress {
     unsuccessfulPredictions: 0,
     bettingWins: 0,
     bettingLosses: 0,
+    coinsEarned: 0,
+    coinsLost: 0,
+    summitSightCompleted: 0,
+    perfectPace: 0,
+    underdog: 0,
+    comeback: 0,
+    summits: 0,
   };
 }
 
@@ -111,7 +128,16 @@ export function readActiveAccount(): PublicAccount | null {
 
 export function updateActiveAccount(
   partial: Partial<
-    Pick<PublicAccount, "displayName" | "coins" | "progress" | "avatarId" | "equippedAccessories">
+    Pick<
+      PublicAccount,
+      | "displayName"
+      | "coins"
+      | "progress"
+      | "avatarId"
+      | "equippedAccessories"
+      | "tasks"
+      | "pendingResultTaskId"
+    >
   >,
 ): void {
   const sessionId = readSessionId();
@@ -146,6 +172,13 @@ export function updateActiveAccount(
     equippedAccessories: partial.equippedAccessories
       ? normalizeAccessoryIds(partial.equippedAccessories)
       : current.equippedAccessories,
+    tasks: partial.tasks ? normalizeTasks(partial.tasks) : current.tasks,
+    pendingResultTaskId:
+      partial.pendingResultTaskId === null
+        ? null
+        : typeof partial.pendingResultTaskId === "string"
+          ? partial.pendingResultTaskId
+          : current.pendingResultTaskId,
   };
   writeAccounts(accounts);
   notify();
@@ -177,6 +210,8 @@ export async function signup(
     progress: emptyProgress(),
     avatarId: null,
     equippedAccessories: [],
+    tasks: [],
+    pendingResultTaskId: null,
     passwordSalt: bytesToBase64(salt),
     passwordHash,
     passwordIterations: ITERATIONS,
@@ -341,6 +376,9 @@ function normalizeAccount(account: StoredAccount): StoredAccount {
     progress: normalizeProgress(account.progress),
     avatarId: isAvatarId(account.avatarId) ? account.avatarId : null,
     equippedAccessories: normalizeAccessoryIds(account.equippedAccessories),
+    tasks: normalizeTasks(account.tasks),
+    pendingResultTaskId:
+      typeof account.pendingResultTaskId === "string" ? account.pendingResultTaskId : null,
     passwordIterations: account.passwordIterations || ITERATIONS,
   };
 }
@@ -362,6 +400,13 @@ function normalizeProgress(value: Partial<PlayerProgress> | undefined): PlayerPr
     unsuccessfulPredictions: nonNegative(value.unsuccessfulPredictions),
     bettingWins: nonNegative(value.bettingWins),
     bettingLosses: nonNegative(value.bettingLosses),
+    coinsEarned: nonNegative(value.coinsEarned),
+    coinsLost: nonNegative(value.coinsLost),
+    summitSightCompleted: nonNegative(value.summitSightCompleted),
+    perfectPace: nonNegative(value.perfectPace),
+    underdog: nonNegative(value.underdog),
+    comeback: nonNegative(value.comeback),
+    summits: nonNegative(value.summits),
   };
 }
 
@@ -394,6 +439,8 @@ function toPublic(account: StoredAccount): PublicAccount {
     progress: account.progress,
     avatarId: account.avatarId,
     equippedAccessories: account.equippedAccessories,
+    tasks: account.tasks,
+    pendingResultTaskId: account.pendingResultTaskId,
   };
 }
 

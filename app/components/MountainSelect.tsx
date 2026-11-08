@@ -70,7 +70,7 @@ export function MountainSelect() {
         <h1>Choose a mountain</h1>
         <p className={styles.lead}>
           Mount Fuji is open. Each later mountain opens after the previous
-          mountain&apos;s tasks are finished. Climbing is not built yet.
+          mountain&apos;s tasks are finished. Start an unlocked climb to create a task.
         </p>
         <div className={styles.scroller}>
           <button
@@ -145,8 +145,7 @@ export function MountainSelect() {
               </p>
             )}
             <p className={styles.credit}>
-              Original illustration of this peak&apos;s real geography. Task climbing
-              is not active yet.
+              Original illustration of this peak&apos;s real geography.
             </p>
           </div>
           <AvatarFigure
